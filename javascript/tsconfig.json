@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"target": "ES2015",
+		"strict": true,
+		"rootDir": "src",
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleResolution": "NodeNext"
+	},
+	"include": ["src/**/*"]
+}
