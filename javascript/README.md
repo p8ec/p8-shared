@@ -1,4 +1,4 @@
-# P(8) Global Shared Library for Node.js and TypeScript/JavaScript.
+# P(8) Global Shared Library for Node.js and TypeScript/JavaScript
 
 This repository contains the shared library for all P(8) products.
 
@@ -20,7 +20,7 @@ npm i -D @p8ec/shared
 p8-shared-cli init
 ```
 
-This command will create the following files in your project:
+This command will create the following files in your project and remove corresponding configuration entries from `package.json`:
 
 #### **`.eslintrc.js`**
 

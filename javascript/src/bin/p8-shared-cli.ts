@@ -55,6 +55,14 @@ const init = () => {
 		path.join(path.resolve(__dirname), '.prettierrc.js'),
 		`module.exports = require('@p8ec/shared').prettierConfigRecommended;`,
 	);
+
+	// Remove eslintConfig and prettier from package.json
+	// eslint-disable-next-line no-console
+	console.log('Removing eslintConfig and prettier from package.json...');
+	const packageJson = JSON.parse(String(fs.readFileSync(path.join(process.cwd(), 'package.json'))));
+	delete packageJson['eslintConfig'];
+	delete packageJson['prettier'];
+	fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(packageJson, null, 2));
 };
 
 switch (args[0]) {
