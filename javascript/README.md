@@ -8,16 +8,28 @@ This repository contains the shared configuration for all P(8) products.
 
 ### Usage
 
+#### Installation
+
+```shell
+npm i -D @p8ec/shared
+```
+
+#### Initialization
+
+```shell
+p8-shared-cli init
+```
+
+This command will create the following files in your project:
+
 #### **`.eslintrc.js`**
 
 ```javascript 
-// .eslintrc.js
 module.exports = require('@p8ec/shared').eslintConfigRecommended;
 ```
 
 #### **`.prettierrc.js`**
 
 ```javascript 
-// .prettierrc.js
 module.exports = require('@p8ec/shared').prettierConfigRecommended;
 ```

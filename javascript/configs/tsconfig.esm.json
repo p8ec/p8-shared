@@ -5,4 +5,5 @@
 		"moduleResolution": "Bundler",
 		"outDir": "../dist/esm"
 	},
+	"exclude": ["../src/bin/**/*"]
 }
