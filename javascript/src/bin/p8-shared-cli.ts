@@ -45,14 +45,14 @@ const init = () => {
 	// eslint-disable-next-line no-console
 	console.log('Creating .eslintrc.js...');
 	fs.writeFileSync(
-		path.join(path.resolve(__dirname), '.eslintrc.js'),
+		path.join(process.cwd(), '.eslintrc.js'),
 		`module.exports = require('@p8ec/shared').eslintConfigRecommended;`,
 	);
 
 	// eslint-disable-next-line no-console
 	console.log('Creating .prettierrc.js...');
 	fs.writeFileSync(
-		path.join(path.resolve(__dirname), '.prettierrc.js'),
+		path.join(process.cwd(), '.prettierrc.js'),
 		`module.exports = require('@p8ec/shared').prettierConfigRecommended;`,
 	);
 
