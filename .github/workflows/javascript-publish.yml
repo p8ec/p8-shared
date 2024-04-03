@@ -1,4 +1,4 @@
-name: Publish Shared JavaScript Package
+name: Publish JavaScript Package
 
 on:
   workflow_dispatch:
