@@ -1,6 +1,6 @@
 {
 	"name": "@p8ec/shared",
-	"version": "1.1.2",
+	"version": "1.1.3",
 	"description": "P(8) Global Shared Library",
 	"repository": {
 		"type": "git",
