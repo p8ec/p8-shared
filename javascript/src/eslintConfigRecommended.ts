@@ -1,7 +1,6 @@
 /**
  * 2023 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
- * Private and Confidential.
  */
 
 import { ClassicConfig } from '@typescript-eslint/utils/ts-eslint';
@@ -37,13 +36,7 @@ const eslintConfigRecommended: ClassicConfig.Config = {
 		'header/header': [
 			2,
 			'block',
-			[
-				'*',
-				' * 2023 Copyright P8 Enterprise Components, Inc.',
-				' * All Rights Reserved.',
-				' * Private and Confidential.',
-				' ',
-			],
+			['*', ' * 2023 Copyright P8 Enterprise Components, Inc.', ' * All Rights Reserved.', ' '],
 			2,
 		],
 	},
