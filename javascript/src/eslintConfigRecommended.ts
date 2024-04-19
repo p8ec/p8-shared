@@ -14,7 +14,7 @@ const eslintConfigRecommended: Partial<ClassicConfig.Config> = {
 		project: 'tsconfig.json',
 		sourceType: 'module',
 	},
-	ignorePatterns: ['.eslintrc.js', '.prettierrc.js', 'dist/', 'node_modules/'],
+	ignorePatterns: ['*.config.ts', '*.config.js', '*rc.ts', '*rc.js', 'dist/', 'node_modules/'],
 	plugins: ['@typescript-eslint/eslint-plugin', 'header'],
 	extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
 	root: true,

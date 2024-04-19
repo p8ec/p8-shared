@@ -1,9 +1,3 @@
-/**
- * 2023 Copyright P8 Enterprise Components, Inc.
- * All Rights Reserved.
- * Private and Confidential.
- */
-
 import type { Config } from 'jest';
 
 // import * as fs from 'fs';
