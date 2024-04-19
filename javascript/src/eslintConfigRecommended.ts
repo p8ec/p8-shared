@@ -8,7 +8,7 @@ import { ClassicConfig } from '@typescript-eslint/utils/ts-eslint';
 /**
  * Recommended ESLint configuration for TypeScript projects.
  */
-const eslintConfigRecommended: ClassicConfig.Config = {
+const eslintConfigRecommended: Partial<ClassicConfig.Config> = {
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		project: 'tsconfig.json',
