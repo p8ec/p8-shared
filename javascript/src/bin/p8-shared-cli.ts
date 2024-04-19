@@ -2,7 +2,6 @@
 /**
  * 2023 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
- * Private and Confidential.
  */
 
 /**
@@ -73,5 +72,4 @@ switch (args[0]) {
 		// eslint-disable-next-line no-console
 		console.error(`Unknown command: ${args[0]}`);
 		process.exit(1);
-		break;
 }
