@@ -25,10 +25,11 @@ import { processArgs } from 'ferramenta';
 
 const args = processArgs.args;
 const self = path.parse(processArgs.name).name;
+const writeLn = console.log;
+const writeFile = (name: string, data: string) => fs.writeFileSync(path.join(process.cwd(), name), data);
 
 if (args.length === 0) {
-	// eslint-disable-next-line no-console
-	console.log(`
+	writeLn(`
 Usage: ${self} [command] [options]
 
 Commands:
@@ -40,33 +41,60 @@ Commands:
 	process.exit(1);
 }
 
+/**
+ * Initializes a TypeScript project with P8 shared configurations.
+ */
 const init = () => {
-	// eslint-disable-next-line no-console
-	console.log('Creating .eslintrc.js...');
-	fs.writeFileSync(
-		path.join(process.cwd(), '.eslintrc.js'),
-		`module.exports = require('@p8ec/shared').eslintConfigRecommended;`,
-	);
+	writeLn('Creating .eslintrc.js...');
+	writeFile('.eslintrc.js', `module.exports = require('@p8ec/shared').eslintConfigRecommended;`);
 
-	// eslint-disable-next-line no-console
-	console.log('Creating .prettierrc.js...');
-	fs.writeFileSync(
-		path.join(process.cwd(), '.prettierrc.js'),
-		`module.exports = require('@p8ec/shared').prettierConfigRecommended;`,
-	);
+	writeLn('Creating .prettierrc.js...');
+	writeFile('.prettierrc.js', `module.exports = require('@p8ec/shared').prettierConfigRecommended;`);
 
-	// Remove eslintConfig and prettier from package.json
-	// eslint-disable-next-line no-console
-	console.log('Removing eslintConfig and prettier from package.json...');
+	// Cleanup package.json
+	writeLn('Removing eslintConfig and prettier from package.json...');
 	const packageJson = JSON.parse(String(fs.readFileSync(path.join(process.cwd(), 'package.json'))));
-	delete packageJson['eslintConfig'];
-	delete packageJson['prettier'];
-	fs.writeFileSync(path.join(process.cwd(), 'package.json'), JSON.stringify(packageJson, null, 2));
+
+	if (packageJson['eslintConfig']) {
+		writeLn('Backing up eslintConfig to eslint.package.json.bak...');
+		writeFile('eslint.package.json.bak', packageJson['eslintConfig']);
+		delete packageJson['eslintConfig'];
+	}
+
+	if (packageJson['prettier']) {
+		writeLn('Backing up prettier to prettier.package.json.bak...');
+		writeFile('prettier.package.json.bak', packageJson['prettier']);
+		delete packageJson['prettier'];
+	}
+
+	writeFile('package.json', JSON.stringify(packageJson, null, 2));
+};
+
+/**
+ * Returns the directory name of the caller, optionally returns a directory name specified levels up.
+ */
+const dirn = (levelsUp: string): string => {
+	const DEFAULT_LEVELS_UP = 0;
+	levelsUp ??= `${DEFAULT_LEVELS_UP}`;
+
+	const levels = parseInt(levelsUp) || DEFAULT_LEVELS_UP;
+
+	return process.cwd().split(path.sep).reverse()[levels];
+};
+
+/**
+ * Returns the caller PID
+ */
+const pid = (): number => {
+	return process.pid;
 };
 
 switch (args[0]) {
 	case 'init':
 		init();
+		break;
+	case 'dirn':
+		writeLn(dirn(args[1]));
 		break;
 	default:
 		// eslint-disable-next-line no-console
