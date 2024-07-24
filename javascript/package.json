@@ -82,7 +82,8 @@
 			"*.config.ts",
 			"*.config.js",
 			"*rc.ts",
-			"*rc.js"
+			"*rc.js",
+			"src/assets"
 		],
 		"rules": {
 			"@typescript-eslint/interface-name-prefix": "off",
