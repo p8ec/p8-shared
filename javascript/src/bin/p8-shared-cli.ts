@@ -9,14 +9,6 @@
  *
  * This tool is used to simplify the process of creating new P8 components.
  *
- * 	Usage:
- * 		p8-shared [command] [options]
- *
- * 	Commands:
- * 		init [--flavor=recommended]
- * 			Initializes a new P8 component.
- *				Options:
- *					--flavor: The flavor of the component to create. Defaults to 'recommended'.
  */
 
 import * as path from 'path';
@@ -35,29 +27,29 @@ if (args.length === 0) {
 Usage: ${self} [command] [options]
 
 Commands:
-	init [--flavor=recommended]
+	init [cleanup]
 		Initializes a new P8 component.
 			Options:
-				--flavor: The flavor of the component to create. Defaults to 'recommended'.
+				cleanup: Removes redundant configurations from package.json.
 `);
 	process.exit(1);
 }
 
 const initCleanup = (packageJson: any): any => {
 	writeLn('Removing eslintConfig and prettier from package.json...');
+	const configBackup: Record<string, any> = {};
+	const configBackupFile = 'p8-package-backup.json';
+	const configBackupSections = ['eslintConfig', 'prettier', 'commitlint'];
 
-	if (packageJson['eslintConfig']) {
-		writeLn('Backing up eslintConfig to eslint.package.json.bak...');
-		writeFile('eslint.package.json.bak', packageJson['eslintConfig']);
-		delete packageJson['eslintConfig'];
-	}
+	configBackupSections.forEach((section) => {
+		if (packageJson[section]) {
+			writeLn(`Backing up ${section} to ${section}.${configBackupFile}...`);
+			configBackup[section] = packageJson[section];
+			delete packageJson[section];
+		}
+	});
 
-	if (packageJson['prettier']) {
-		writeLn('Backing up prettier to prettier.package.json.bak...');
-		writeFile('prettier.package.json.bak', packageJson['prettier']);
-		delete packageJson['prettier'];
-	}
-
+	writeFile(`${configBackupFile}`, JSON.stringify(configBackup, null, 2));
 	writeFile('package.json', JSON.stringify(packageJson, null, 2));
 };
 
@@ -73,6 +65,9 @@ const init = (option: string) => {
 
 	writeLn(`Creating .prettierrc.${moduleType}...`);
 	copyAsset(`.prettierrc.${moduleType}`);
+
+	writeLn(`Creating .commitlintrc.${moduleType}...`);
+	copyAsset(`.commitlintrc.${moduleType}`);
 
 	writeLn('Creating lefthook.yml...');
 	copyAsset('lefthook.yml');
