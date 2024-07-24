@@ -15,12 +15,16 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { processArgs } from 'ferramenta';
 
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 const args = processArgs.args;
 const self = path.parse(processArgs.name).name;
 const writeLn = console.log;
 const writeFile = (name: string, data: string) => fs.writeFileSync(path.join(process.cwd(), name), data);
 const copyAsset = (name: string) =>
-	fs.copyFileSync(path.join(__dirname, '..', 'assets', name), path.join(process.cwd(), name));
+	IS_DEV
+		? fs.copyFileSync(path.join(__dirname, '..', 'assets', name), path.join(process.cwd(), name))
+		: fs.copyFileSync(path.join(__dirname, '..', '..', 'assets', name), path.join(process.cwd(), name));
 
 if (args.length === 0) {
 	writeLn(`
@@ -32,6 +36,10 @@ Commands:
 			Options:
 				cleanup: Removes redundant configurations from package.json.
 `);
+
+	if (IS_DEV) {
+		writeLn(`DEVELOPMENT MODE`);
+	}
 	process.exit(1);
 }
 
