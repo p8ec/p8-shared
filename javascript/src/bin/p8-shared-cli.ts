@@ -35,6 +35,10 @@ Commands:
 		Initializes a new P8 component.
 			Options:
 				cleanup: Removes redundant configurations from package.json.
+	dirn [levelsUp]
+		Returns the directory name of the caller.
+			Options:
+				levelsUp: The number of levels up to return the directory name.
 `);
 
 	if (IS_DEV) {
