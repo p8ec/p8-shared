@@ -77,7 +77,7 @@ const init = (option: string) => {
 	writeLn('Creating lefthook.yml...');
 	copyAsset('lefthook.yml');
 
-	if (option.split(',').includes('cleanup')) {
+	if (option?.split(',').includes('cleanup')) {
 		initCleanup(packageJson);
 	}
 };
