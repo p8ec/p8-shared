@@ -45,7 +45,7 @@ p8-cli [command] [options]
 
 ### Commands
 
-- `init` - Initialize P(8) shared configuration in your project.
+- `init` - Initialize P(8) shared configuration in your project. Options: `cleanup` - remove configuration entries from `package.json`
 - `dirn` - Get the directory name. Options: `0` - current directory (default), `1` - parent directory, `2` - 2 levels up
   directory, etc.
 

@@ -27,6 +27,8 @@ const args = processArgs.args;
 const self = path.parse(processArgs.name).name;
 const writeLn = console.log;
 const writeFile = (name: string, data: string) => fs.writeFileSync(path.join(process.cwd(), name), data);
+const copyAsset = (name: string) =>
+	fs.copyFileSync(path.join(__dirname, '..', 'assets', name), path.join(process.cwd(), name));
 
 if (args.length === 0) {
 	writeLn(`
@@ -41,19 +43,8 @@ Commands:
 	process.exit(1);
 }
 
-/**
- * Initializes a TypeScript project with P8 shared configurations.
- */
-const init = () => {
-	writeLn('Creating .eslintrc.js...');
-	writeFile('.eslintrc.js', `module.exports = require('@p8ec/shared').eslintConfigRecommended;`);
-
-	writeLn('Creating .prettierrc.js...');
-	writeFile('.prettierrc.js', `module.exports = require('@p8ec/shared').prettierConfigRecommended;`);
-
-	// Cleanup package.json
+const initCleanup = (packageJson: any): any => {
 	writeLn('Removing eslintConfig and prettier from package.json...');
-	const packageJson = JSON.parse(String(fs.readFileSync(path.join(process.cwd(), 'package.json'))));
 
 	if (packageJson['eslintConfig']) {
 		writeLn('Backing up eslintConfig to eslint.package.json.bak...');
@@ -71,6 +62,27 @@ const init = () => {
 };
 
 /**
+ * Initializes a TypeScript project with P8 shared configurations.
+ */
+const init = (option: string) => {
+	const packageJson = JSON.parse(String(fs.readFileSync(path.join(process.cwd(), 'package.json'))));
+	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
+
+	writeLn(`Creating .eslintrc.${moduleType}...`);
+	copyAsset(`.eslintrc.${moduleType}`);
+
+	writeLn(`Creating .prettierrc.${moduleType}...`);
+	copyAsset(`.prettierrc.${moduleType}`);
+
+	writeLn('Creating lefthook.yml...');
+	copyAsset('lefthook.yml');
+
+	if (option.split(',').includes('cleanup')) {
+		initCleanup(packageJson);
+	}
+};
+
+/**
  * Returns the directory name of the caller, optionally returns a directory name specified levels up.
  */
 const dirn = (levelsUp: string): string => {
@@ -82,16 +94,9 @@ const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-/**
- * Returns the caller PID
- */
-const pid = (): number => {
-	return process.pid;
-};
-
 switch (args[0]) {
 	case 'init':
-		init();
+		init(args[1]);
 		break;
 	case 'dirn':
 		writeLn(dirn(args[1]));
