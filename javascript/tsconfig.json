@@ -10,6 +10,5 @@
 		"moduleResolution": "NodeNext",
 		"module": "NodeNext"
 	},
-	"include": ["src/**/*"],
-	"assets":["src/assets/**"]
+	"include": ["src/**/*"]
 }
