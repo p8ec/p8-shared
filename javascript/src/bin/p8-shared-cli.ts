@@ -41,17 +41,19 @@ Commands:
 }
 
 const init = () => {
+	const eslintConfigFilename = 'eslint.config.mjs';
 	// eslint-disable-next-line no-console
-	console.log('Creating .eslintrc.js...');
+	console.log(`Creating ${eslintConfigFilename}...`);
 	fs.writeFileSync(
-		path.join(process.cwd(), '.eslintrc.js'),
+		path.join(process.cwd(), eslintConfigFilename),
 		`module.exports = require('@p8ec/shared').eslintConfigRecommended;`,
 	);
 
+	const prettierConfigFilename = 'prettier.config.mjs';
 	// eslint-disable-next-line no-console
-	console.log('Creating .prettierrc.js...');
+	console.log(`Creating ${prettierConfigFilename}...`);
 	fs.writeFileSync(
-		path.join(process.cwd(), '.prettierrc.js'),
+		path.join(process.cwd(), prettierConfigFilename),
 		`module.exports = require('@p8ec/shared').prettierConfigRecommended;`,
 	);
 
