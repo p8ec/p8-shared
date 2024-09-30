@@ -11,13 +11,13 @@
 	},
 	"homepage": "https://github.com/p8ec/p8-shared",
 	"scripts": {
-		"build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
+		"build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run build:assets",
 		"build:esm": "tsc -p configs/tsconfig.esm.json",
 		"build:cjs": "tsc -p configs/tsconfig.cjs.json && chmod -R +x dist/cjs/bin/*.js",
 		"build:types": "tsc -p configs/tsconfig.types.json",
-		"clean": "rimraf dist docs coverage",
+		"build:assets": "cp -R src/assets dist",
+		"clean": "rf -rf dist docs coverage",
 		"cli": "NODE_ENV=development ts-node src/bin/p8-shared-cli.ts",
-		"reset": "npm run clean && rimraf node_modules && npm install",
 		"test": "jest --no-cache --runInBand",
 		"test:cov": "jest --coverage --no-cache --runInBand",
 		"lint": "eslint --cache \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -27,7 +27,8 @@
 		"docs:clean": "rimraf docs"
 	},
 	"bin": {
-		"p8-shared-cli": "dist/cjs/bin/p8-shared-cli.js"
+		"p8-shared-cli": "dist/cjs/bin/p8-shared-cli.js",
+		"p8-cli": "dist/cjs/bin/p8-shared-cli.js"
 	},
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
