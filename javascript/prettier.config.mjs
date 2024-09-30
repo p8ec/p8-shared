@@ -1,3 +1,7 @@
+/**
+ * 2024 Copyright P8 Enterprise Components, Inc.
+ * All Rights Reserved.
+ */
 export default {
 	singleQuote: true,
 	trailingComma: 'all',
