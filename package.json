@@ -7,7 +7,6 @@
   "scripts": {
     "postinstall": "lefthook install"
   },
-  "author": "",
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
