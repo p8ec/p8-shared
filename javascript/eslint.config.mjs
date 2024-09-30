@@ -1,16 +1,13 @@
 /**
  * 2024 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
- */
-
-/**
- * Recommended ESLint configuration for TypeScript projects.
+ *
+ * @ts-check
  */
 
 import eslint from '@eslint/js';
 import * as tslint from 'typescript-eslint';
 import eslintPluginPrettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
-// @ts-expect-error - importing from a JS file to TS:
 import eslintPluginHeaders from 'eslint-plugin-headers';
 
 export default tslint.config(
