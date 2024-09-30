@@ -16,7 +16,7 @@
 		"build:cjs": "tsc -p configs/tsconfig.cjs.json && chmod -R +x dist/cjs/bin/*.js",
 		"build:types": "tsc -p configs/tsconfig.types.json",
 		"build:assets": "cp -R src/assets dist",
-		"clean": "rf -rf dist docs coverage",
+		"clean": "rm -rf dist docs coverage",
 		"cli": "NODE_ENV=development ts-node src/bin/p8-shared-cli.ts",
 		"test": "jest --no-cache --runInBand",
 		"test:cov": "jest --coverage --no-cache --runInBand",
