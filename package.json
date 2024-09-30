@@ -5,6 +5,7 @@
   ],
   "description": "This repository contains the shared library for all P(8) products.",
   "scripts": {
+    "build": "npm --workspaces run build",
     "reset": "rm -rf packages/**/node_modules node_modules && npm i",
     "postinstall": "lefthook install"
   },
