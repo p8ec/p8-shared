@@ -31,32 +31,7 @@
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
 	"types": "dist/types/index.d.ts",
-	"devDependencies": {
-		"@commitlint/cli": "^19.5.0",
-		"@commitlint/config-conventional": "^19.5.0",
-		"@swc/cli": "^0.4.1-nightly.20240914",
-		"@swc/core": "^1.7.26",
-		"@swc/jest": "^0.2.36",
-		"@types/jest": "^29.5.13",
-		"jest": "^29.7.0",
-		"lint-staged": "^15.2.10",
-		"rimraf": "^6.0.1",
-		"ts-node": "^10.9.2",
-		"typedoc": "^0.26.7",
-		"typescript": "5.5.4"
-	},
-	"lint-staged": {
-		"*.{js,jsx,ts,tsx}": "npm run lint:fix"
-	},
-	"commitlint": {
-		"extends": [
-			"@commitlint/config-conventional"
-		]
-	},
 	"license": "MIT",
-	"lint-staged1": {
-		"*.{js,jsx,ts,tsx}": "npm run lint:fix"
-	},
 	"dependencies": {
 		"@eslint/js": "^9.11.1",
 		"@types/eslint__js": "^8.42.3",
