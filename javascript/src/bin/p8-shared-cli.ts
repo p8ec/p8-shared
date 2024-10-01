@@ -83,9 +83,13 @@ const init = (option: string) => {
 
 	writeLn('Creating lefthook.yml...');
 	copyAsset('lefthook.yml');
+	packageJson.scripts.postinstall = 'lefthook install';
 
 	if (option?.split(',').includes('cleanup')) {
 		initCleanup(packageJson);
+	} else {
+		writeLn('Skipping cleanup...');
+		writeFile('package.json', JSON.stringify(packageJson, null, 2));
 	}
 };
 
