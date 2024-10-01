@@ -97,8 +97,11 @@ const init = async (option: string) => {
 
 		writeLn('Creating lefthook.yml...');
 		copyAsset('lefthook.yml');
+		writeLn('Adding lefthook install to postinstall...');
 		packageJson.scripts.postinstall = 'lefthook install';
-		execShell('npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook');
+		const lefthookInstall = 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook';
+		writeLn(`Executing ${lefthookInstall}...`);
+		execShell(lefthookInstall);
 	}
 
 	if (option?.split(',').includes('cleanup')) {
