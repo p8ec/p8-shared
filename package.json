@@ -25,9 +25,6 @@
     "typedoc": "^0.26.7",
     "typescript": "5.5.4"
   },
-  "lint-staged1": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:fix"
-  },
   "engines": {
     "node": ">=20"
   },

@@ -14,19 +14,25 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { processArgs } from 'ferramenta';
+import yesno from './utils/yesno';
+import prompt from './utils/prompt';
+import * as child_process from 'node:child_process';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 
-const args = processArgs.args;
+let args = processArgs.args;
 const self = path.parse(processArgs.name).name;
 const writeLn = console.log;
-const writeFile = (name: string, data: string) => fs.writeFileSync(path.join(process.cwd(), name), data);
+const execShell = (command: string) =>
+	IS_DEV ? writeLn(`DEV: execShell ${command}`) : child_process.execSync(command).toString();
+const writeFile = (name: string, data: string) =>
+	IS_DEV ? writeLn(`DEV: writeFile name=${name} data=${data}`) : fs.writeFileSync(path.join(process.cwd(), name), data);
 const copyAsset = (name: string) =>
 	IS_DEV
-		? fs.copyFileSync(path.join(__dirname, '..', 'assets', name), path.join(process.cwd(), name))
+		? writeLn(`DEV: copyAsset name=${name}`)
 		: fs.copyFileSync(path.join(__dirname, '..', '..', 'assets', name), path.join(process.cwd(), name));
 
-if (args.length === 0) {
+if (args.length === 0 && !IS_DEV) {
 	writeLn(`
 Usage: ${self} [command] [options]
 
@@ -68,7 +74,7 @@ const initCleanup = (packageJson: Record<string, unknown>): void => {
 /**
  * Initializes a TypeScript project with P8 shared configurations.
  */
-const init = (option: string) => {
+const init = async (option: string) => {
 	const packageJson = JSON.parse(String(fs.readFileSync(path.join(process.cwd(), 'package.json'))));
 	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
 
@@ -78,12 +84,22 @@ const init = (option: string) => {
 	writeLn(`Creating prettier.config.${moduleType}...`);
 	copyAsset(`prettier.config.${moduleType}`);
 
-	writeLn(`Creating commitlint.config.${moduleType}...`);
-	copyAsset(`commitlint.config.${moduleType}`);
+	const lefthook = await yesno({
+		question: 'Do you want to use commitlint/lefthook? [y]n',
+		defaultValue: true,
+		yesValues: ['yes', 'y'],
+		noValues: ['no', 'n'],
+	});
 
-	writeLn('Creating lefthook.yml...');
-	copyAsset('lefthook.yml');
-	packageJson.scripts.postinstall = 'lefthook install';
+	if (lefthook) {
+		writeLn(`Creating commitlint.config.${moduleType}...`);
+		copyAsset(`commitlint.config.${moduleType}`);
+
+		writeLn('Creating lefthook.yml...');
+		copyAsset('lefthook.yml');
+		packageJson.scripts.postinstall = 'lefthook install';
+		execShell('npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook');
+	}
 
 	if (option?.split(',').includes('cleanup')) {
 		initCleanup(packageJson);
@@ -105,14 +121,23 @@ const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-switch (args[0]) {
-	case 'init':
-		init(args[1]);
-		break;
-	case 'dirn':
-		writeLn(dirn(args[1]));
-		break;
-	default:
-		console.error(`Unknown command: ${args[0]}`);
-		process.exit(1);
-}
+const setup = async () => {
+	// Ask user for arguments if IS_DEV is true
+	if (IS_DEV) {
+		args = (await prompt('Enter arguments: ')).split(' ');
+	}
+
+	switch (args[0]) {
+		case 'init':
+			init(args[1]);
+			break;
+		case 'dirn':
+			writeLn(dirn(args[1]));
+			break;
+		default:
+			console.error(`Unknown command: ${args[0]}`);
+			process.exit(1);
+	}
+};
+
+setup();
