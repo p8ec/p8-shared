@@ -24,6 +24,7 @@ export default tslint.config(
 				{
 					source: 'string',
 					content: '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
+					trailingNewlines: 2,
 				},
 			],
 		},
