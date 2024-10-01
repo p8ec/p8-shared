@@ -1,3 +1,5 @@
 import { prettierConfigRecommended } from '@p8ec/shared';
 
-export default prettierConfigRecommended;
+const config = prettierConfigRecommended();
+
+export default config;

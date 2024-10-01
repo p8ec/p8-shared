@@ -1,1 +1,1 @@
-module.exports = require('@p8ec/shared').prettierConfigRecommended;
+module.exports = require('@p8ec/shared').prettierConfigRecommended();

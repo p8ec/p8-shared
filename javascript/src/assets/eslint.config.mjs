@@ -1,3 +1,5 @@
 import { eslintConfigRecommended } from '@p8ec/shared';
 
-export default eslintConfigRecommended;
+const config = eslintConfigRecommended()
+
+export default config;
