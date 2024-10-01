@@ -13,11 +13,12 @@ import eslintPluginPrettierRecommendedConfig from 'eslint-plugin-prettier/recomm
 // @ts-expect-error - importing from a JS file to TS:
 import eslintPluginHeaders from 'eslint-plugin-headers';
 
-export default tslint.config(
-	eslint.configs.recommended,
-	...tslint.configs.recommended,
-	eslintPluginPrettierRecommendedConfig,
-	{
+export interface EslintConfigOverrides {
+	copyright?: string;
+}
+
+export default (overrides?: EslintConfigOverrides) =>
+	tslint.config(eslint.configs.recommended, ...tslint.configs.recommended, eslintPluginPrettierRecommendedConfig, {
 		plugins: {
 			headers: eslintPluginHeaders,
 		},
@@ -26,9 +27,8 @@ export default tslint.config(
 				2,
 				{
 					source: 'string',
-					content: '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
+					content: overrides?.copyright ?? '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
 				},
 			],
 		},
-	},
-);
+	});
