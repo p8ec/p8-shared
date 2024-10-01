@@ -20,18 +20,26 @@ interface EslintConfigOverrideInterface {
 export type EslintConfigOverride = EslintConfigOverrideInterface;
 
 export default (override?: EslintConfigOverride) =>
-	tslint.config(eslint.configs.recommended, ...tslint.configs.recommended, eslintPluginPrettierRecommendedConfig, {
-		plugins: {
-			headers: eslintPluginHeaders,
+	tslint.config(
+		eslint.configs.recommended,
+		...tslint.configs.recommended,
+		eslintPluginPrettierRecommendedConfig,
+		{
+			ignores: ['**/dist/'],
 		},
-		rules: {
-			'headers/header-format': [
-				2,
-				{
-					source: 'string',
-					content: override?.copyright ?? '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
-					trailingNewlines: 2,
-				},
-			],
+		{
+			plugins: {
+				headers: eslintPluginHeaders,
+			},
+			rules: {
+				'headers/header-format': [
+					2,
+					{
+						source: 'string',
+						content: override?.copyright ?? '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
+						trailingNewlines: 2,
+					},
+				],
+			},
 		},
-	});
+	);
