@@ -17,11 +17,13 @@ export const prettierConfigRecommended: Options = {
 	bracketSpacing: true,
 };
 
-interface PrettierConfigOverrides {
+interface PrettierConfigOverrideInterface {
 	tabWidth?: number;
 }
 
-export default (overrides?: PrettierConfigOverrides) => ({
+export type PrettierConfigOverride = PrettierConfigOverrideInterface & Options;
+
+export default (overrides?: PrettierConfigOverride) => ({
 	...prettierConfigRecommended,
 	...(overrides ?? {}),
 });

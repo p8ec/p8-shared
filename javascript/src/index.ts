@@ -3,7 +3,8 @@
  * All Rights Reserved.
  */
 
-import eslintConfigRecommended from './eslintConfigRecommended';
-import prettierConfigRecommended from './prettierConfigRecommended';
+import eslintConfigRecommended, { EslintConfigOverride } from './eslintConfigRecommended';
+import prettierConfigRecommended, { PrettierConfigOverride } from './prettierConfigRecommended';
 
-export { eslintConfigRecommended, prettierConfigRecommended };
+export { eslintConfigRecommended, EslintConfigOverride };
+export { prettierConfigRecommended, PrettierConfigOverride };
