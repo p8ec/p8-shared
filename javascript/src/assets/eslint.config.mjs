@@ -1,5 +1,3 @@
+/* eslint-disable */
 import { eslintConfigRecommended } from '@p8ec/shared';
-
-const config = eslintConfigRecommended()
-
-export default config;
+export default eslintConfigRecommended();
