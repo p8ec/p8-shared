@@ -73,13 +73,13 @@ const init = (option: string) => {
 	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
 
 	writeLn(`Creating eslint.config.${moduleType}...`);
-	copyAsset(`.eslintrc.${moduleType}`);
+	copyAsset(`eslint.config.${moduleType}`);
 
 	writeLn(`Creating prettier.config.${moduleType}...`);
-	copyAsset(`.prettierrc.${moduleType}`);
+	copyAsset(`prettier.config.${moduleType}`);
 
 	writeLn(`Creating commitlint.config.${moduleType}...`);
-	copyAsset(`.commitlintrc.${moduleType}`);
+	copyAsset(`commitlint.config.${moduleType}`);
 
 	writeLn('Creating lefthook.yml...');
 	copyAsset('lefthook.yml');
