@@ -12,9 +12,11 @@ import * as tslint from 'typescript-eslint';
 import eslintPluginPrettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
 // @ts-expect-error - importing from a JS file to TS:
 import eslintPluginHeaders from 'eslint-plugin-headers';
+import { ConfigWithExtends } from 'typescript-eslint';
 
 interface EslintConfigOverrideInterface {
 	copyright?: string;
+	eslintConfig?: ConfigWithExtends;
 }
 
 export type EslintConfigOverride = EslintConfigOverrideInterface;
@@ -42,4 +44,5 @@ export default (override?: EslintConfigOverride) =>
 				],
 			},
 		},
+		{ ...override?.eslintConfig },
 	);
