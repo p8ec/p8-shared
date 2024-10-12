@@ -7,7 +7,8 @@
   "scripts": {
     "build": "npm --workspaces run build",
     "reset": "rm -rf packages/**/node_modules node_modules && npm i",
-    "postinstall": "lefthook install"
+    "postinstall": "lefthook install",
+    "scripts:test": "cd tests/scripts && find . -type f -name \"*.test.sh\" -exec sh {} \\;"
   },
   "license": "MIT",
   "devDependencies": {
