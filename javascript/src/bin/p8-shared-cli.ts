@@ -102,7 +102,7 @@ const init = async (option: string) => {
 		const npmInstall = 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook';
 		writeLn(`Executing ${npmInstall}...`);
 		execShell(npmInstall);
-		const lefthookInstall = 'npm run postinstall';
+		const lefthookInstall = 'lefthook install';
 		writeLn(`Executing ${lefthookInstall}...`);
 		execShell(lefthookInstall);
 	}
