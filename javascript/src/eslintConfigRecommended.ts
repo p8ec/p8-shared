@@ -38,7 +38,7 @@ export default (override?: EslintConfigOverride) =>
 					2,
 					{
 						source: 'string',
-						content: override?.copyright ?? '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
+						content: override?.copyright ?? '2025 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
 						trailingNewlines: 2,
 					},
 				],
