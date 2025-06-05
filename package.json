@@ -7,24 +7,26 @@
   "scripts": {
     "build": "npm --workspaces run build",
     "reset": "rm -rf packages/**/node_modules node_modules && npm i",
+    "audit": "npm audit",
+    "audit:fix": "npm audit fix",
     "postinstall": "lefthook install",
     "scripts:test": "cd tests/scripts && find . -type f -name \"*.test.sh\" -exec sh {} \\;"
   },
   "license": "MIT",
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "@swc/cli": "^0.4.1-nightly.20240914",
-    "@swc/core": "^1.7.26",
-    "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.13",
-    "commitlint": "^19.5.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@swc/cli": "^0.7.7",
+    "@swc/core": "^1.11.31",
+    "@swc/jest": "^0.2.38",
+    "@types/jest": "^29.5.14",
+    "commitlint": "^19.8.1",
     "jest": "^29.7.0",
-    "lefthook": "^1.7.18",
-    "lint-staged": "^15.2.10",
+    "lefthook": "^1.11.13",
+    "lint-staged": "^16.1.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.26.7",
-    "typescript": "5.5.4"
+    "typedoc": "^0.28.5",
+    "typescript": "5.8.3"
   },
   "engines": {
     "node": ">=20"
