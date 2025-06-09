@@ -1,6 +1,19 @@
-#   Refer for explanation to following link:
+#   Refer for explanation to the following link:
 #   https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
 
+### Pre-commit hook ###
+# 1. Block commits to main, master, and release branches
+pre-commit:
+  commands:
+    git:
+      run: |
+          if [[ $(git rev-parse --abbrev-ref HEAD) =~ ^(main|master|release)$ ]]; then
+          echo "Direct commits to main, master, and release branches are not allowed."
+          exit 1
+          fi
+
+### Commit message hook ###
+# 1. Allow only commit messages that follow a conventional commit format
 commit-msg:
   commands:
     commitlint:
