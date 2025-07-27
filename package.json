@@ -6,6 +6,7 @@
   "description": "This repository contains the shared library for all P(8) products.",
   "scripts": {
     "build": "npm --workspaces run build",
+    "test": "npm --workspaces run test",
     "reset": "rm -rf packages/**/node_modules node_modules && npm i",
     "audit": "npm audit",
     "audit:fix": "npm audit fix",
@@ -16,16 +17,16 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@swc/cli": "^0.7.7",
-    "@swc/core": "^1.11.31",
-    "@swc/jest": "^0.2.38",
+    "@swc/cli": "^0.7.8",
+    "@swc/core": "^1.13.2",
+    "@swc/jest": "^0.2.39",
     "@types/jest": "^29.5.14",
     "commitlint": "^19.8.1",
     "jest": "^29.7.0",
-    "lefthook": "^1.11.13",
-    "lint-staged": "^16.1.0",
+    "lefthook": "^1.12.2",
+    "lint-staged": "^16.1.2",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.28.5",
+    "typedoc": "^0.28.7",
     "typescript": "5.8.3"
   },
   "engines": {
