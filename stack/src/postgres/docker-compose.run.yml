@@ -1,0 +1,14 @@
+services:
+
+  postgres:
+    extends:
+      service: postgres
+      file: docker-compose.yml
+
+  postgres-ui:
+    extends:
+      service: postgres-ui
+      file: docker-compose.yml
+
+volumes:
+  postgres_data:

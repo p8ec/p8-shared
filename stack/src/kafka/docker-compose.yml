@@ -1,0 +1,72 @@
+services:
+
+  ################ KAFKA ################
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - ${KAFKA_UI_PORT}:8080
+    depends_on:
+      - kafka-zookeeper
+      - kafka-node0
+      - kafka-node1
+    environment:
+      - KAFKA_CLUSTERS_0_NAME="local"
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-node0:9093
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=kafka-zookeeper:${KAFKA_ZOOKEEPER_PORT}
+      - KAFKA_CLUSTERS_0_JMXPORT=9997
+  #      - AUTH_TYPE = "LOGIN_FORM"
+  #      - SPRING_SECURITY_USER_NAME = "admin"
+  #      - SPRING_SECURITY_USER_PASSWORD = "pass"
+
+  kafka-zookeeper:
+    image: confluentinc/cp-zookeeper:5.2.4
+    ports:
+      - ${KAFKA_ZOOKEEPER_PORT}:${KAFKA_ZOOKEEPER_PORT}
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=${KAFKA_ZOOKEEPER_PORT}
+      - ZOOKEEPER_TICK_TIME=2000
+
+  kafka-node0:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    depends_on:
+      - kafka-zookeeper
+    ports:
+      - ${KAFKA_BROKER0_PORT}:${KAFKA_BROKER0_PORT}
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: kafka-zookeeper:${KAFKA_ZOOKEEPER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_NET://kafka-node0:9093,EXTERNAL_NET://localhost:${KAFKA_BROKER0_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_NET:PLAINTEXT,EXTERNAL_NET:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_NET
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      JMX_PORT: 9997
+      KAFKA_JMX_OPTS: >-
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.authenticate=false 
+        -Dcom.sun.management.jmxremote.ssl=false 
+        -Djava.rmi.server.hostname=kafka-node0 
+        -Dcom.sun.management.jmxremote.rmi.port=9997
+
+  kafka-node1:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    depends_on:
+      - kafka-zookeeper
+    ports:
+      - ${KAFKA_BROKER1_PORT}:${KAFKA_BROKER1_PORT}
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: kafka-zookeeper:${KAFKA_ZOOKEEPER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_NET://kafka-node1:9093,EXTERNAL_NET://localhost:${KAFKA_BROKER1_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_NET:PLAINTEXT,EXTERNAL_NET:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_NET
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      JMX_PORT: 9997
+      KAFKA_JMX_OPTS: >-
+        -Dcom.sun.management.jmxremote 
+        -Dcom.sun.management.jmxremote.authenticate=false 
+        -Dcom.sun.management.jmxremote.ssl=false 
+        -Djava.rmi.server.hostname=kafka-node1 
+        -Dcom.sun.management.jmx
