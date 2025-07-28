@@ -84,6 +84,9 @@ const init = async (option: string) => {
 	writeLn(`Creating prettier.config.${moduleType}...`);
 	copyAsset(`prettier.config.${moduleType}`);
 
+	packageJson.scripts['npm:reset'] = 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install';
+	packageJson.scripts['npm:audit'] = 'npm audit --audit-level=moderate';
+
 	const lefthook = await yesno({
 		question: 'Do you want to use commitlint/lefthook? [y]n',
 		defaultValue: true,
@@ -135,7 +138,7 @@ const setup = async () => {
 
 	switch (args[0]) {
 		case 'init':
-			init(args[1]);
+			await init(args[1]);
 			break;
 		case 'dirn':
 			writeLn(dirn(args[1]));
@@ -146,4 +149,16 @@ const setup = async () => {
 	}
 };
 
-setup();
+setup()
+	.then((r) => {
+		if (IS_DEV) {
+			writeLn(`DEV: setup completed with result: ${r}`);
+		}
+	})
+	.catch((err) => {
+		if (IS_DEV) {
+			writeLn(`DEV: setup failed with error: ${err}`);
+		}
+		console.error(`Error: ${err}`);
+		process.exit(1);
+	});
