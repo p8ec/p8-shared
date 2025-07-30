@@ -131,7 +131,7 @@ const dirn = (levelsUp: string): string => {
 };
 
 const setup = async () => {
-	// Ask user for arguments if IS_DEV is true
+	// Ask the user for arguments if IS_DEV is true
 	if (IS_DEV) {
 		args = (await prompt('Enter arguments: ')).split(' ');
 	}

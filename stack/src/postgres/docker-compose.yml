@@ -1,0 +1,36 @@
+services:
+
+  ################ POSTGRESQL ################
+
+  postgres:
+    image: postgres:17
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME:-default_db}
+      - POSTGRES_USER=${DB_USERNAME:-default_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-default_password}
+    ports:
+      - ${DB_PORT:-0}:5432/tcp
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-default_user} -d ${DB_NAME:-default_db}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-ui:
+    image: sosedoff/pgweb
+    restart: always
+    links:
+      - postgres
+    ports:
+      - ${DB_UI_PORT:-0}:8081
+    environment:
+      - PGWEB_DATABASE_URL=postgresql://${DB_USERNAME:-default_user}:${DB_PASSWORD:-default_password}@postgres:5432/${DB_NAME:-default_db}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -1,6 +1,6 @@
 {
 	"name": "@p8ec/shared",
-	"version": "2.3.0",
+	"version": "2.4.0",
 	"description": "P(8) Global Shared Library for Javascript",
 	"repository": {
 		"type": "git",
@@ -28,7 +28,6 @@
 		"docs:clean": "rimraf docs"
 	},
 	"bin": {
-		"p8-shared-cli": "dist/cjs/bin/p8-shared-cli.js",
 		"p8-cli": "dist/cjs/bin/p8-shared-cli.js"
 	},
 	"main": "dist/cjs/index.js",

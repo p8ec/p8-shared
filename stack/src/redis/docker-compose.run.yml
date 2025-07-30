@@ -1,0 +1,14 @@
+services:
+
+  redis:
+    extends:
+      service: redis
+      file: docker-compose.yml
+
+  redis-ui:
+    extends:
+      service: redis-ui
+      file: docker-compose.yml
+
+volumes:
+  redis_data:
