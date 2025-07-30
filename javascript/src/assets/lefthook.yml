@@ -8,8 +8,8 @@ pre-commit:
     git:
       run: |
           if [[ $(git rev-parse --abbrev-ref HEAD) =~ ^(main|master|release)$ ]]; then
-          echo "Direct commits to main, master, and release branches are not allowed."
-          exit 1
+            echo "Direct commits to main, master, and release branches are not allowed."
+            exit 1
           fi
 
 ### Commit message hook ###
