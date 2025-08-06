@@ -103,11 +103,37 @@ const init = async (option: string) => {
 		writeLn('Adding lefthook install to postinstall...');
 		const lefthookInstall = 'lefthook install';
 		packageJson.scripts.postinstall = lefthookInstall;
+
 		const npmInstall = 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook';
-		writeLn(`Executing ${npmInstall}...`);
-		execShell(npmInstall);
-		writeLn(`Executing ${lefthookInstall}...`);
-		execShell(lefthookInstall);
+		const pnpmInstall = 'pnpm install -D @commitlint/{config-conventional,cli} commitlint lefthook';
+		if (
+			await yesno({
+				question: `Do you want to run "${npmInstall}" now? [y]n`,
+				defaultValue: true,
+				yesValues: ['yes', 'y'],
+				noValues: ['no', 'n'],
+			})
+		) {
+			writeLn(`Executing ${npmInstall}...`);
+			execShell(npmInstall);
+		} else {
+			writeLn('You could run the following command to install needed dependencies:');
+			writeLn(npmInstall);
+			writeLn('Or, for pnpm users:');
+			writeLn(pnpmInstall);
+		}
+
+		if (
+			await yesno({
+				question: `Do you want to run "${lefthookInstall}" now? [y]n`,
+				defaultValue: true,
+				yesValues: ['yes', 'y'],
+				noValues: ['no', 'n'],
+			})
+		) {
+			writeLn(`Executing ${lefthookInstall}...`);
+			execShell(lefthookInstall);
+		}
 	}
 
 	if (option?.split(',').includes('cleanup')) {
@@ -131,7 +157,7 @@ const dirn = (levelsUp: string): string => {
 };
 
 const setup = async () => {
-	// Ask user for arguments if IS_DEV is true
+	// Ask the user for arguments if IS_DEV is true
 	if (IS_DEV) {
 		args = (await prompt('Enter arguments: ')).split(' ');
 	}

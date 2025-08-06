@@ -1,0 +1,15 @@
+{
+  "name": "@p8ec/shared-stack",
+  "description": "This repository contains the shared stack library for all P(8) products.",
+  "scripts": {
+    "build": "exit 0",
+    "test": "scripts/run.sh --dir=./src",
+    "up": "docker compose -p p8-shared-stack -f ./docker-compose.yml up --force-recreate",
+    "down": "docker compose -p p8-shared-stack -f ./docker-compose.yml down --remove-orphans",
+    "destroy": "docker compose -p p8-shared-stack -f ./docker-compose.yml down --remove-orphans -v"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}

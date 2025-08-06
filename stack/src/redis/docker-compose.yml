@@ -1,0 +1,35 @@
+services:
+
+################ REDIS ################
+
+  redis:
+    image: bitnami/redis
+    restart: always
+    volumes:
+      - redis_data:/bitnami/redis/data
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-default_password}
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - ${REDIS_PORT:-0}:6379/tcp
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-default_password}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-ui:
+    image: ghcr.io/p8ec/redis-ui:latest
+    restart: always
+    environment:
+      - APP_PORT=${REDIS_UI_PORT:-3192}
+      - REDIS_ENABLED=true
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-default_password}
+    ports:
+      - ${REDIS_UI_PORT:-3192}:${REDIS_UI_PORT:-3192}/tcp
+    links:
+      - redis
+    depends_on:
+      redis:
+        condition: service_healthy
