@@ -1,6 +1,6 @@
 {
 	"name": "@p8ec/shared",
-	"version": "2.4.0",
+	"version": "2.4.1",
 	"description": "P(8) Global Shared Library for Javascript",
 	"repository": {
 		"type": "git",
@@ -18,7 +18,7 @@
 		"build:assets": "cp -R src/assets dist",
 		"build:scripts": "cp -R ../scripts dist && chmod -R +x dist/scripts/*.sh",
 		"clean": "rm -rf dist docs coverage",
-		"cli": "NODE_ENV=development ts-node src/bin/p8-shared-cli.ts",
+		"cli:testrun": "NODE_ENV=development ts-node src/bin/p8-shared-cli.ts",
 		"test": "jest --no-cache --runInBand",
 		"test:cov": "jest --coverage --no-cache --runInBand",
 		"lint": "eslint --cache \"src/**/*.{js,jsx,ts,tsx}\"",
