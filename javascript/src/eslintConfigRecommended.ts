@@ -8,7 +8,7 @@
  */
 
 import eslint from '@eslint/js';
-import * as tslint from 'typescript-eslint';
+import tslint from 'typescript-eslint';
 import eslintPluginPrettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
 // @ts-expect-error - importing from a JS file to TS:
 import eslintPluginHeaders from 'eslint-plugin-headers';
@@ -24,7 +24,7 @@ export type EslintConfigOverride = EslintConfigOverrideInterface;
 export default (override?: EslintConfigOverride) =>
 	tslint.config(
 		eslint.configs.recommended,
-		...tslint.configs.recommended,
+		tslint.configs.recommended,
 		eslintPluginPrettierRecommendedConfig,
 		{
 			ignores: ['**/dist/'],

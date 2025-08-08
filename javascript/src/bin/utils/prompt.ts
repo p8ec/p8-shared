@@ -16,7 +16,7 @@ async function prompt(prompt: string): Promise<string> {
 		output: process.stdout,
 	});
 
-	return new Promise<string>((resolve, reject) => {
+	return new Promise<string>((resolve) => {
 		rl.question(prompt + ' ', (answer: string) => {
 			rl.close();
 			resolve(answer);

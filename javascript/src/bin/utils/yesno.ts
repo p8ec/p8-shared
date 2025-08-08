@@ -47,7 +47,7 @@ async function ask({ question, defaultValue, yesValues, noValues, invalid }: Ask
 		output: process.stdout,
 	});
 
-	return new Promise<boolean>((resolve, reject) => {
+	return new Promise<boolean>((resolve) => {
 		rl.question(question + ' ', async (answer: string) => {
 			rl.close();
 			const cleaned = answer.trim().toLowerCase();
