@@ -6,13 +6,13 @@
  */
 
 import eslint from '@eslint/js';
-import * as tslint from 'typescript-eslint';
+import tslint from 'typescript-eslint';
 import eslintPluginPrettierRecommendedConfig from 'eslint-plugin-prettier/recommended';
 import eslintPluginHeaders from 'eslint-plugin-headers';
 
 export default tslint.config(
 	eslint.configs.recommended,
-	...tslint.configs.recommended,
+	tslint.configs.recommended,
 	eslintPluginPrettierRecommendedConfig,
 	{
 		plugins: {
