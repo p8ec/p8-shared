@@ -6,13 +6,6 @@ Shared TypeScript/JavaScript libraries for P(8) products.
 
 Shared (**and very opinionated**) configuration for P(8) projects.
 
-**Contents:**
-
-- ESLint configuration
-- Prettier configuration
-- Commitlint configuration
-- Lefthook configuration
-
 ### Usage
 
 #### Installation
@@ -73,6 +66,6 @@ p8-cli [command] [options]
 - `run` - Returns a script string using the detected or specified package manager. Options: `script` - script name,
   `packageManager` - npm, yarn, or pnpm (auto-detected by default), `workspaceMode` - mode of concurrency for workspaces
   (if applicable): `seq` (default) or `par`.
-    - Example: `p8-cli run build` - runs the `build` script using the detected package manager.
-    - Example: `p8-cli run test pnpm par` - runs the `test` script using
+    - Example: `p8-cli run build` - returns the `build` script using the detected package manager.
+    - Example: `p8-cli run test pnpm par` - returns the `test` script using
       `pnpm` in parallel mode for workspaces.
