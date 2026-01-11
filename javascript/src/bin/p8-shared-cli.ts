@@ -11,8 +11,8 @@
  *
  */
 
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { processArgs } from 'ferramenta';
 import yesno from './utils/yesno';
 import prompt from './utils/prompt';
@@ -90,9 +90,22 @@ export const initCleanup = (packageJson: Record<string, unknown>): void => {
 };
 
 /**
+ * Detects the package manager used in the project.
+ */
+export const detectPackageManager = (cwd = process.cwd()): 'npm' | 'pnpm' | 'yarn' => {
+	if (fs.existsSync(path.join(cwd, 'pnpm-lock.yaml'))) {
+		return 'pnpm';
+	}
+	if (fs.existsSync(path.join(cwd, 'yarn.lock'))) {
+		return 'yarn';
+	}
+	return 'npm';
+};
+
+/**
  * Initializes a TypeScript project with P8 shared configurations.
  */
-export const init = async (option: string) => {
+export const init = async (option: string, packageManager = detectPackageManager()) => {
 	const packageJsonData = fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8');
 	const packageJson = JSON.parse(packageJsonData);
 	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
@@ -104,8 +117,18 @@ export const init = async (option: string) => {
 	cliUtils.copyAsset(`prettier.config.${moduleType}`);
 
 	packageJson.scripts ??= {};
-	packageJson.scripts['npm:reset'] = 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install';
-	packageJson.scripts['npm:audit'] = 'npm audit --audit-level=moderate';
+	packageJson.scripts[`${packageManager}:reset`] =
+		packageManager === 'pnpm'
+			? 'rm -rf ./**/node_modules && rm -rf ./**/pnpm-lock.yaml && pnpm install'
+			: packageManager === 'yarn'
+				? 'rm -rf ./**/node_modules && rm -rf ./**/yarn.lock && yarn install'
+				: 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install';
+	packageJson.scripts[`${packageManager}:audit`] =
+		packageManager === 'pnpm'
+			? 'pnpm audit'
+			: packageManager === 'yarn'
+				? 'yarn npm audit'
+				: 'npm audit --audit-level=moderate';
 
 	const lefthook = await yesno({
 		question: 'Do you want to use commitlint/lefthook? [y]n',
@@ -124,23 +147,26 @@ export const init = async (option: string) => {
 		const lefthookInstall = 'lefthook install';
 		packageJson.scripts.postinstall = lefthookInstall;
 
-		const npmInstall = 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook';
-		const pnpmInstall = 'pnpm install -D @commitlint/{config-conventional,cli} commitlint lefthook';
+		const installCommands = {
+			npm: 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook',
+			pnpm: 'pnpm install -D @commitlint/{config-conventional,cli} commitlint lefthook',
+			yarn: 'yarn add -D @commitlint/config-conventional @commitlint/cli commitlint lefthook',
+		};
+		const installCommand = installCommands[packageManager];
+
 		if (
 			await yesno({
-				question: `Do you want to run "${npmInstall}" now? [y]n`,
+				question: `Do you want to run "${installCommand}" now? [y]n`,
 				defaultValue: true,
 				yesValues: ['yes', 'y'],
 				noValues: ['no', 'n'],
 			})
 		) {
-			writeLn(`Executing ${npmInstall}...`);
-			cliUtils.execShell(npmInstall);
+			writeLn(`Executing ${installCommand}...`);
+			cliUtils.execShell(installCommand);
 		} else {
 			writeLn('You could run the following command to install needed dependencies:');
-			writeLn(npmInstall);
-			writeLn('Or, for pnpm users:');
-			writeLn(pnpmInstall);
+			writeLn(installCommand);
 		}
 
 		if (
@@ -176,7 +202,7 @@ export const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-export const run = (script: string, packageManager = 'npm', workspaceMode = 'none'): string => {
+export const run = (script: string, packageManager = detectPackageManager(), workspaceMode = 'none'): string => {
 	const pnpmWorkspaceSeq = '-r --workspace-concurrency=1 --if-present --reporter-hide-prefix';
 	const pnpmWorkspacePar = '-r --if-present --parallel';
 	const yarnWorkspaceSeq = 'workspaces foreach -A';
@@ -224,7 +250,7 @@ const main = async () => {
 			writeLn(dirn(args[1]));
 			break;
 		case 'run':
-			writeLn(run(args[1], args[2]));
+			writeLn(run(args[1], args[2] as never));
 			break;
 		default:
 			console.error(`Unknown command: ${args[0]}`);

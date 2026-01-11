@@ -5,12 +5,37 @@
 
 import * as cli from '../src/bin/p8-shared-cli';
 import yesno from '../src/bin/utils/yesno';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
+jest.mock('node:fs', () => ({
+	...jest.requireActual('node:fs'),
+	existsSync: jest.fn(),
+}));
 
 jest.mock('../src/bin/utils/yesno');
 const mockedYesno = yesno as jest.MockedFunction<typeof yesno>;
 
 describe('p8-shared-cli', () => {
+	describe('detectPackageManager', () => {
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
+		it('should detect pnpm if pnpm-lock.yaml exists', () => {
+			(fs.existsSync as jest.Mock).mockReturnValue(true);
+			expect(cli.detectPackageManager('/project/pnpm')).toBe('pnpm');
+		});
+
+		it('should detect yarn if yarn.lock exists', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: any) => p.toString().endsWith('yarn.lock'));
+			expect(cli.detectPackageManager('/project/yarn')).toBe('yarn');
+		});
+
+		it('should detect npm by default', () => {
+			(fs.existsSync as jest.Mock).mockReturnValue(false);
+			expect(cli.detectPackageManager('/project/npm')).toBe('npm');
+		});
+	});
+
 	describe('dirn', () => {
 		const originalCwd = process.cwd();
 
@@ -46,6 +71,11 @@ describe('p8-shared-cli', () => {
 
 		it('should return correct yarn command for par workspace mode', () => {
 			expect(cli.run('build', 'yarn', 'par')).toBe('yarn workspaces foreach -A -p run build');
+		});
+
+		it('should use detected package manager as default', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.toString().endsWith('pnpm-lock.yaml'));
+			expect(cli.run('test')).toContain('pnpm run test');
 		});
 
 		it('should return correct pnpm command for seq workspace mode', () => {
@@ -114,13 +144,13 @@ describe('p8-shared-cli', () => {
 		});
 
 		it('should initialize project with all configs when confirmed', async () => {
-			const fs = require('fs');
 			jest.spyOn(fs, 'readFileSync').mockReturnValue(
 				JSON.stringify({
 					name: 'test-project',
 					scripts: {},
 				}),
 			);
+			(fs.existsSync as jest.Mock).mockReturnValue(false); // Default to npm
 
 			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
 			const copyAssetSpy = jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
@@ -136,14 +166,52 @@ describe('p8-shared-cli', () => {
 			expect(execShellSpy).toHaveBeenCalledWith(expect.stringContaining('npm install'));
 		});
 
-		it('should not install dependencies if user declines', async () => {
-			const fs = require('fs');
+		it('should initialize project with pnpm when pnpm-lock.yaml exists', async () => {
 			jest.spyOn(fs, 'readFileSync').mockReturnValue(
 				JSON.stringify({
 					name: 'test-project',
 					scripts: {},
 				}),
 			);
+
+			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
+			jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
+			const execShellSpy = jest.spyOn(cli.cliUtils, 'execShell').mockImplementation();
+
+			await cli.init('', 'pnpm');
+
+			expect(execShellSpy).toHaveBeenCalledWith(expect.stringContaining('pnpm install'));
+			const packageJson = JSON.parse(writeFileSpy.mock.calls.find((call) => call[0] === 'package.json')![1]);
+			expect(packageJson.scripts['pnpm:reset']).toBeDefined();
+		});
+
+		it('should initialize project with yarn when yarn.lock exists', async () => {
+			jest.spyOn(fs, 'readFileSync').mockReturnValue(
+				JSON.stringify({
+					name: 'test-project',
+					scripts: {},
+				}),
+			);
+
+			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
+			jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
+			const execShellSpy = jest.spyOn(cli.cliUtils, 'execShell').mockImplementation();
+
+			await cli.init('', 'yarn');
+
+			expect(execShellSpy).toHaveBeenCalledWith(expect.stringContaining('yarn add -D'));
+			const packageJson = JSON.parse(writeFileSpy.mock.calls.find((call) => call[0] === 'package.json')![1]);
+			expect(packageJson.scripts['yarn:reset']).toBeDefined();
+		});
+
+		it('should not install dependencies if user declines', async () => {
+			jest.spyOn(fs, 'readFileSync').mockReturnValue(
+				JSON.stringify({
+					name: 'test-project',
+					scripts: {},
+				}),
+			);
+			(fs.existsSync as jest.Mock).mockReturnValue(false); // Default to npm
 			mockedYesno.mockResolvedValue(false);
 			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
 			const copyAssetSpy = jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
