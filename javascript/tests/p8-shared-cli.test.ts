@@ -12,7 +12,7 @@ jest.mock('node:fs', () => ({
 }));
 
 jest.mock('../src/bin/utils/yesno');
-const mockedYesno = yesno as jest.MockedFunction<typeof yesno>;
+const mockedYesNo = yesno as jest.MockedFunction<typeof yesno>;
 
 describe('p8-shared-cli', () => {
 	describe('detectPackageManager', () => {
@@ -26,7 +26,7 @@ describe('p8-shared-cli', () => {
 		});
 
 		it('should detect yarn if yarn.lock exists', () => {
-			(fs.existsSync as jest.Mock).mockImplementation((p: any) => p.toString().endsWith('yarn.lock'));
+			(fs.existsSync as jest.Mock).mockImplementation((p: unknown) => p.toString().endsWith('yarn.lock'));
 			expect(cli.detectPackageManager('/project/yarn')).toBe('yarn');
 		});
 
@@ -55,7 +55,8 @@ describe('p8-shared-cli', () => {
 
 		it('should default to 0 levels up if levelsUp is not provided', () => {
 			jest.spyOn(process, 'cwd').mockReturnValue('/home/user/project');
-			// @ts-ignore
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
 			expect(cli.dirn()).toBe('project');
 		});
 	});
@@ -85,12 +86,12 @@ describe('p8-shared-cli', () => {
 		});
 
 		it('should throw error for unknown package manager', () => {
-			// @ts-ignore
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
 			expect(() => cli.run('test', 'unknown')).toThrow('Unknown package manager: unknown');
 		});
 
 		it('should throw error for unknown workspace mode', () => {
-			// @ts-ignore
 			expect(() => cli.run('test', 'npm', 'unknown')).toThrow('Unknown workspace mode: unknown');
 		});
 	});
@@ -136,7 +137,7 @@ describe('p8-shared-cli', () => {
 	describe('init', () => {
 		beforeEach(() => {
 			jest.spyOn(console, 'log').mockImplementation();
-			mockedYesno.mockResolvedValue(true);
+			mockedYesNo.mockResolvedValue(true);
 		});
 
 		afterEach(() => {
@@ -212,8 +213,11 @@ describe('p8-shared-cli', () => {
 				}),
 			);
 			(fs.existsSync as jest.Mock).mockReturnValue(false); // Default to npm
-			mockedYesno.mockResolvedValue(false);
+			mockedYesNo.mockResolvedValue(false);
+			// Suppressing unused vars warnings for spies that are intentionally not used:
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const copyAssetSpy = jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
 			const execShellSpy = jest.spyOn(cli.cliUtils, 'execShell').mockImplementation();
 
