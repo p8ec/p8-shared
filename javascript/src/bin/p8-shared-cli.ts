@@ -53,16 +53,8 @@ Commands:
 		Returns a command to run a script with the specified package manager.
 			Options:
 				script: The script to run.
-					- 'start': Starts the application.
-					- 'build': Builds the application.
-					- 'test': Runs tests.
-					- 'lint': Lints the application.
-					- 'start-workspace': Starts the workspace.
-					- 'build-workspace': Builds the workspace.
-					- 'test-workspace': Runs tests in the workspace.
-					- 'lint-workspace': Lints the workspace.
-				packageManager: The package manager to use (npm, yarn, pnpm). Defaults to npm.
-				workspaceMode: Whether to run in workspace mode (seq or par for pnpm). Defaults to none.
+				packageManager: The package manager to use ('npm', 'yarn', 'pnpm' or 'auto'). Defaults to npm.
+				workspaceMode: Whether to run in workspace mode ('seq' or 'par' for pnpm and yarn, and 'seq' for npm). Defaults to none.
 `);
 
 	if (IS_DEV) {
@@ -225,9 +217,17 @@ export const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-export const run = (script: string, packageManager = detectPackageManager(), workspaceMode?: string): string => {
+export const run = (
+	script: string,
+	packageManager: string = detectPackageManager(),
+	workspaceMode?: string,
+): string => {
 	if (!workspaceMode || workspaceMode === 'none') {
 		workspaceMode = detectWorkspace() ? 'seq' : 'none';
+	}
+
+	if (packageManager === 'auto') {
+		packageManager = detectPackageManager();
 	}
 
 	const pnpmWorkspaceSeq = '-r --workspace-concurrency=1 --if-present --reporter-hide-prefix';

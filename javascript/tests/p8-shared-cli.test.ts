@@ -99,6 +99,11 @@ describe('p8-shared-cli', () => {
 			expect(cli.run('test')).toContain('pnpm run test');
 		});
 
+		it('should use detected package manager when "auto" is specified', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.toString().endsWith('yarn.lock'));
+			expect(cli.run('test', 'auto')).toContain('yarn run test');
+		});
+
 		it('should return correct pnpm command for seq workspace mode', () => {
 			expect(cli.run('lint', 'pnpm', 'seq')).toBe(
 				'pnpm -r --workspace-concurrency=1 --if-present --reporter-hide-prefix run lint',
@@ -106,8 +111,6 @@ describe('p8-shared-cli', () => {
 		});
 
 		it('should throw error for unknown package manager', () => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
 			expect(() => cli.run('test', 'unknown')).toThrow('Unknown package manager: unknown');
 		});
 
