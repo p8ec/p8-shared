@@ -54,7 +54,7 @@ Commands:
 			Options:
 				script: The script to run.
 				packageManager: The package manager to use ('npm', 'yarn', 'pnpm' or 'auto'). Defaults to npm.
-				workspaceMode: Whether to run in workspace mode ('seq' or 'par' for pnpm and yarn, and 'seq' for npm). Defaults to none.
+				workspaceMode: Whether to run in workspace mode ('seq', 'par', 'auto' for pnpm and yarn, and 'seq' for npm). Defaults to none.
 `);
 
 	if (IS_DEV) {
@@ -217,16 +217,12 @@ export const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-export const run = (
-	script: string,
-	packageManager: string = detectPackageManager(),
-	workspaceMode?: string,
-): string => {
-	if (!workspaceMode || workspaceMode === 'none') {
+export const run = (script: string, packageManager: string, workspaceMode?: string): string => {
+	if (!workspaceMode || workspaceMode === 'auto') {
 		workspaceMode = detectWorkspace() ? 'seq' : 'none';
 	}
 
-	if (packageManager === 'auto') {
+	if (!packageManager || packageManager === 'auto') {
 		packageManager = detectPackageManager();
 	}
 

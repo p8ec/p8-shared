@@ -65,7 +65,7 @@ p8-cli [command] [options]
     - Example: `p8-cli dirn 1` - shows the parent directory name.
 - `run` - Returns a script string using the detected or specified package manager. Options: `script` - script name,
   `packageManager` - `npm`, `yarn`, `pnpm` or `auto` (detected by default), `workspaceMode` - mode of concurrency for workspaces
-  (if applicable): `seq` (default) or `par`.
+  (if applicable): `seq`, `par`, `auto` (detected by default).
     - Example: `p8-cli run build` - returns the `build` script using the detected package manager.
     - Example: `p8-cli run test auto par` - returns the `test` script using the detected
       package manager in parallel mode for workspaces.

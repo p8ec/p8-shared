@@ -96,6 +96,8 @@ describe('p8-shared-cli', () => {
 
 		it('should use detected package manager as default', () => {
 			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.toString().endsWith('pnpm-lock.yaml'));
+			// eslint-disable-next-line
+			// @ts-expect-error
 			expect(cli.run('test')).toContain('pnpm run test');
 		});
 
@@ -121,6 +123,11 @@ describe('p8-shared-cli', () => {
 		it('should auto-detect workspace mode if not provided', () => {
 			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
 			expect(cli.run('test', 'pnpm')).toContain('--workspace-concurrency=1');
+		});
+
+		it('should auto-detect workspace mode when "auto" is specified', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
+			expect(cli.run('test', 'pnpm', 'auto')).toContain('--workspace-concurrency=1');
 		});
 	});
 
