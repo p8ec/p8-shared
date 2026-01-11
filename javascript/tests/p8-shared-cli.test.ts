@@ -1,5 +1,5 @@
 /**
- * 2024 Copyright P8 Enterprise Components, Inc.
+ * 2026 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
  */
 
@@ -9,6 +9,7 @@ import * as fs from 'node:fs';
 jest.mock('node:fs', () => ({
 	...jest.requireActual('node:fs'),
 	existsSync: jest.fn(),
+	readFileSync: jest.fn(),
 }));
 
 jest.mock('../src/bin/utils/yesno');
@@ -33,6 +34,25 @@ describe('p8-shared-cli', () => {
 		it('should detect npm by default', () => {
 			(fs.existsSync as jest.Mock).mockReturnValue(false);
 			expect(cli.detectPackageManager('/project/npm')).toBe('npm');
+		});
+	});
+
+	describe('detectWorkspace', () => {
+		it('should detect pnpm workspace', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
+			expect(cli.detectWorkspace('/project/pnpm')).toBe(true);
+		});
+
+		it('should detect npm/yarn workspace', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('package.json'));
+			(fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({ workspaces: ['packages/*'] }));
+			expect(cli.detectWorkspace('/project/npm')).toBe(true);
+		});
+
+		it('should return false if no workspace detected', () => {
+			(fs.existsSync as jest.Mock).mockReturnValue(false);
+			(fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({}));
+			expect(cli.detectWorkspace('/project/none')).toBe(false);
 		});
 	});
 
@@ -93,6 +113,11 @@ describe('p8-shared-cli', () => {
 
 		it('should throw error for unknown workspace mode', () => {
 			expect(() => cli.run('test', 'npm', 'unknown')).toThrow('Unknown workspace mode: unknown');
+		});
+
+		it('should auto-detect workspace mode if not provided', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
+			expect(cli.run('test', 'pnpm')).toContain('--workspace-concurrency=1');
 		});
 	});
 

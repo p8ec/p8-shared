@@ -1,5 +1,5 @@
 /**
- * 2024 Copyright P8 Enterprise Components, Inc.
+ * 2026 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
  *
  * @ts-check
@@ -23,7 +23,7 @@ export default tslint.config(
 				2,
 				{
 					source: 'string',
-					content: '2024 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
+					content: '2026 Copyright P8 Enterprise Components, Inc. \nAll Rights Reserved.',
 					trailingNewlines: 2,
 				},
 			],

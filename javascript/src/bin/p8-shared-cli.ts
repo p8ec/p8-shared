@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 2024 Copyright P8 Enterprise Components, Inc.
+ * 2026 Copyright P8 Enterprise Components, Inc.
  * All Rights Reserved.
  */
 
@@ -103,6 +103,29 @@ export const detectPackageManager = (cwd = process.cwd()): 'npm' | 'pnpm' | 'yar
 };
 
 /**
+ * Detects if the project is a workspace.
+ */
+export const detectWorkspace = (cwd = process.cwd()): boolean => {
+	if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
+		return true;
+	}
+
+	const packageJsonPath = path.join(cwd, 'package.json');
+	if (fs.existsSync(packageJsonPath)) {
+		try {
+			const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+			if (packageJson.workspaces) {
+				return true;
+			}
+		} catch {
+			return false;
+		}
+	}
+
+	return false;
+};
+
+/**
  * Initializes a TypeScript project with P8 shared configurations.
  */
 export const init = async (option: string, packageManager = detectPackageManager()) => {
@@ -202,7 +225,11 @@ export const dirn = (levelsUp: string): string => {
 	return process.cwd().split(path.sep).reverse()[levels];
 };
 
-export const run = (script: string, packageManager = detectPackageManager(), workspaceMode = 'none'): string => {
+export const run = (script: string, packageManager = detectPackageManager(), workspaceMode?: string): string => {
+	if (!workspaceMode || workspaceMode === 'none') {
+		workspaceMode = detectWorkspace() ? 'seq' : 'none';
+	}
+
 	const pnpmWorkspaceSeq = '-r --workspace-concurrency=1 --if-present --reporter-hide-prefix';
 	const pnpmWorkspacePar = '-r --if-present --parallel';
 	const yarnWorkspaceSeq = 'workspaces foreach -A';
@@ -239,7 +266,7 @@ export const run = (script: string, packageManager = detectPackageManager(), wor
 const main = async () => {
 	// Ask the user for arguments if IS_DEV is true
 	if (IS_DEV) {
-		args = (await prompt('Enter arguments: ')).split(' ');
+		args = (await prompt('Enter arguments:')).split(' ');
 	}
 
 	switch (args[0]) {
@@ -250,7 +277,7 @@ const main = async () => {
 			writeLn(dirn(args[1]));
 			break;
 		case 'run':
-			writeLn(run(args[1], args[2] as never));
+			writeLn(run(args[1], args[2] as never, args[3]));
 			break;
 		default:
 			console.error(`Unknown command: ${args[0]}`);
@@ -262,14 +289,14 @@ if (require.main === module) {
 	main()
 		.then((r) => {
 			if (IS_DEV) {
-				writeLn(`DEV: setup completed with result: ${r}`);
+				writeLn(`DEV: setup completed successfully with result: ${JSON.stringify(r)}`);
 			}
 		})
 		.catch((err) => {
 			if (IS_DEV) {
-				writeLn(`DEV: setup failed with error: ${err}`);
+				writeLn(`DEV: setup failed with error: ${JSON.stringify(err)}`);
 			}
-			console.error(`Error: ${err}`);
+			console.error(err.toString());
 			process.exit(1);
 		});
 }

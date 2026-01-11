@@ -1,7 +1,9 @@
-import type { Config } from 'jest';
+/**
+ * 2026 Copyright P8 Enterprise Components, Inc.
+ * All Rights Reserved.
+ */
 
-// import * as fs from 'fs';
-// const swcJestConfig = JSON.parse(fs.readFileSync(`${__dirname}/.swcrc`, 'utf-8'));
+import type { Config } from 'jest';
 
 export default async (): Promise<Config> => {
 	return {
