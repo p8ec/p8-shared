@@ -27,9 +27,11 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Build
+        working-directory: javascript
         run: npm run build
 
       - name: Publish to npm
-        run: cd javascript && npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        working-directory: javascript
+        run: npm publish --access public
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
