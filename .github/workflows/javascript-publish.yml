@@ -20,7 +20,7 @@ jobs:
       - name: Setup .npmrc file to publish to npm
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install modules
@@ -32,6 +32,6 @@ jobs:
 
       - name: Publish to npm
         working-directory: javascript
-        run: npm publish --access public
+        run: npm publish --provenance
 #        env:
 #          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
