@@ -240,6 +240,27 @@ describe('p8-shared-cli', () => {
 			expect(packageJson.scripts['yarn:reset']).toBeDefined();
 		});
 
+		it('should initialize project with auto-detected package manager when "auto" is specified', async () => {
+			jest.spyOn(fs, 'readFileSync').mockReturnValue(
+				JSON.stringify({
+					name: 'test-project',
+					scripts: {},
+				}),
+			);
+			// Mock fs.existsSync to return true for pnpm-lock.yaml
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.toString().endsWith('pnpm-lock.yaml'));
+
+			const writeFileSpy = jest.spyOn(cli.cliUtils, 'writeFile').mockImplementation();
+			jest.spyOn(cli.cliUtils, 'copyAsset').mockImplementation();
+			const execShellSpy = jest.spyOn(cli.cliUtils, 'execShell').mockImplementation();
+
+			await cli.init('', 'auto');
+
+			expect(execShellSpy).toHaveBeenCalledWith(expect.stringContaining('pnpm install'));
+			const packageJson = JSON.parse(writeFileSpy.mock.calls.find((call) => call[0] === 'package.json')![1]);
+			expect(packageJson.scripts['pnpm:reset']).toBeDefined();
+		});
+
 		it('should not install dependencies if user declines', async () => {
 			jest.spyOn(fs, 'readFileSync').mockReturnValue(
 				JSON.stringify({

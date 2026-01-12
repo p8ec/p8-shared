@@ -32,10 +32,11 @@ export const initCleanup = (packageJson: Record<string, unknown>): void => {
 /**
  * Initializes a TypeScript project with P8 shared configurations.
  */
-export const init = async (option: string, packageManager = detectPackageManager()) => {
+export const init = async (option: string, pm = 'auto') => {
 	const packageJsonData = fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8');
 	const packageJson = JSON.parse(packageJsonData);
 	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
+	const packageManager = pm === 'auto' ? detectPackageManager() : pm;
 
 	writeLn(`Creating eslint.config.${moduleType}...`);
 	cliUtils.copyAsset(`eslint.config.${moduleType}`);
@@ -43,19 +44,29 @@ export const init = async (option: string, packageManager = detectPackageManager
 	writeLn(`Creating prettier.config.${moduleType}...`);
 	cliUtils.copyAsset(`prettier.config.${moduleType}`);
 
-	packageJson.scripts ??= {};
-	packageJson.scripts[`${packageManager}:reset`] =
-		packageManager === 'pnpm'
-			? 'rm -rf ./**/node_modules && rm -rf ./**/pnpm-lock.yaml && pnpm install'
-			: packageManager === 'yarn'
-				? 'rm -rf ./**/node_modules && rm -rf ./**/yarn.lock && yarn install'
-				: 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install';
-	packageJson.scripts[`${packageManager}:audit`] =
-		packageManager === 'pnpm'
-			? 'pnpm audit'
-			: packageManager === 'yarn'
-				? 'yarn npm audit'
-				: 'npm audit --audit-level=moderate';
+	const scripts = [
+		{
+			name: 'reset',
+			command: {
+				pnpm: 'rm -rf ./**/node_modules && rm -rf ./**/pnpm-lock.yaml && pnpm install',
+				yarn: 'rm -rf ./**/node_modules && rm -rf ./**/yarn.lock && yarn install',
+				npm: 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install',
+			},
+		},
+		{
+			name: 'audit',
+			command: {
+				pnpm: 'pnpm audit',
+				yarn: 'yarn npm audit',
+				npm: 'npm audit --audit-level=moderate',
+			},
+		},
+	];
+
+	scripts.forEach((script) => {
+		packageJson.scripts ??= {};
+		packageJson.scripts[`${packageManager}:${script.name}`] = script.command[packageManager as 'npm' | 'pnpm' | 'yarn'];
+	});
 
 	const lefthook = await yesno({
 		question: 'Do you want to use commitlint/lefthook? [y]n',
