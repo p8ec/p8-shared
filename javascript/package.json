@@ -1,6 +1,6 @@
 {
 	"name": "@p8ec/shared",
-	"version": "3.0.0",
+	"version": "3.0.2",
 	"description": "P(8) Global Shared Library for Javascript",
 	"repository": {
 		"type": "git",
