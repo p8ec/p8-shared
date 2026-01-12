@@ -14,9 +14,15 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { processArgs } from 'ferramenta';
-import yesno from './utils/yesno';
 import prompt from './utils/prompt';
+import parseArgs from './utils/args';
 import * as child_process from 'node:child_process';
+import { init, initCleanup } from './cmds/init';
+import { dirn } from './cmds/dirn';
+import { run } from './cmds/run';
+import { detectPackageManager, detectWorkspace } from './utils/detect';
+
+export { init, initCleanup, dirn, run, detectPackageManager, detectWorkspace };
 
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -41,20 +47,21 @@ if (args.length === 0 && !IS_DEV && require.main === module) {
 Usage: ${self} {command} [options]
 
 Commands:
-	init [cleanup]
+	init [options]
 		Initializes a new P8 repo.
 			Options:
-				cleanup: Removes redundant configurations from package.json.
+				--cleanup: Flag to remove redundant configurations from package.json.
 	dirn [levelsUp]
 		Returns the directory name of the caller.
-			Options:
+			Arguments:
 				levelsUp: The number of levels up to return the directory name.
-	run [script [packageManager [workspaceMode]]]
+	run script [options]
 		Returns a command to run a script with the specified package manager.
-			Options:
+			Arguments:
 				script: The script to run.
-				packageManager: The package manager to use ('npm', 'yarn', 'pnpm' or 'auto'). Defaults to npm.
-				workspaceMode: Whether to run in workspace mode ('seq', 'par', 'auto' for pnpm and yarn, and 'seq' for npm). Defaults to none.
+			Options:
+				-p {value}, --packageManager={value}: The package manager to use, where {value} is one of 'npm', 'pnpm', 'yarn', or 'auto'.
+				-w {value}, --workspaceMode={value}: The workspace mode to use, where {value} is one of 'none', 'seq', 'par', or 'auto'.
 `);
 
 	if (IS_DEV) {
@@ -63,220 +70,32 @@ Commands:
 	process.exit(1);
 }
 
-export const initCleanup = (packageJson: Record<string, unknown>): void => {
-	writeLn('Removing eslintConfig and prettier from package.json...');
-	const configBackup: Record<string, unknown> = {};
-	const configBackupFile = 'p8-package-backup.json';
-	const configBackupSections = ['eslintConfig', 'prettier', 'commitlint'];
-
-	configBackupSections.forEach((section) => {
-		if (packageJson[section]) {
-			writeLn(`Backing up ${section} to ${section}.${configBackupFile}...`);
-			configBackup[section] = packageJson[section];
-			delete packageJson[section];
-		}
-	});
-
-	cliUtils.writeFile(`${configBackupFile}`, JSON.stringify(configBackup, null, 2));
-	cliUtils.writeFile('package.json', JSON.stringify(packageJson, null, 2));
-};
-
-/**
- * Detects the package manager used in the project.
- */
-export const detectPackageManager = (cwd = process.cwd()): 'npm' | 'pnpm' | 'yarn' => {
-	if (fs.existsSync(path.join(cwd, 'pnpm-lock.yaml'))) {
-		return 'pnpm';
-	}
-	if (fs.existsSync(path.join(cwd, 'yarn.lock'))) {
-		return 'yarn';
-	}
-	return 'npm';
-};
-
-/**
- * Detects if the project is a workspace.
- */
-export const detectWorkspace = (cwd = process.cwd()): boolean => {
-	if (fs.existsSync(path.join(cwd, 'pnpm-workspace.yaml'))) {
-		return true;
-	}
-
-	const packageJsonPath = path.join(cwd, 'package.json');
-	if (fs.existsSync(packageJsonPath)) {
-		try {
-			const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-			if (packageJson.workspaces) {
-				return true;
-			}
-		} catch {
-			return false;
-		}
-	}
-
-	return false;
-};
-
-/**
- * Initializes a TypeScript project with P8 shared configurations.
- */
-export const init = async (option: string, packageManager = detectPackageManager()) => {
-	const packageJsonData = fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8');
-	const packageJson = JSON.parse(packageJsonData);
-	const moduleType = packageJson['type'] === 'module' ? 'mjs' : 'cjs';
-
-	writeLn(`Creating eslint.config.${moduleType}...`);
-	cliUtils.copyAsset(`eslint.config.${moduleType}`);
-
-	writeLn(`Creating prettier.config.${moduleType}...`);
-	cliUtils.copyAsset(`prettier.config.${moduleType}`);
-
-	packageJson.scripts ??= {};
-	packageJson.scripts[`${packageManager}:reset`] =
-		packageManager === 'pnpm'
-			? 'rm -rf ./**/node_modules && rm -rf ./**/pnpm-lock.yaml && pnpm install'
-			: packageManager === 'yarn'
-				? 'rm -rf ./**/node_modules && rm -rf ./**/yarn.lock && yarn install'
-				: 'rm -rf ./**/node_modules && rm -rf ./**/package-lock.json && npm install';
-	packageJson.scripts[`${packageManager}:audit`] =
-		packageManager === 'pnpm'
-			? 'pnpm audit'
-			: packageManager === 'yarn'
-				? 'yarn npm audit'
-				: 'npm audit --audit-level=moderate';
-
-	const lefthook = await yesno({
-		question: 'Do you want to use commitlint/lefthook? [y]n',
-		defaultValue: true,
-		yesValues: ['yes', 'y'],
-		noValues: ['no', 'n'],
-	});
-
-	if (lefthook) {
-		writeLn(`Creating commitlint.config.${moduleType}...`);
-		cliUtils.copyAsset(`commitlint.config.${moduleType}`);
-
-		writeLn('Creating lefthook.yml...');
-		cliUtils.copyAsset('lefthook.yml');
-		writeLn('Adding lefthook install to postinstall...');
-		const lefthookInstall = 'lefthook install';
-		packageJson.scripts.postinstall = lefthookInstall;
-
-		const installCommands = {
-			npm: 'npm install --save-dev @commitlint/{config-conventional,cli} commitlint lefthook',
-			pnpm: 'pnpm install -D @commitlint/{config-conventional,cli} commitlint lefthook',
-			yarn: 'yarn add -D @commitlint/config-conventional @commitlint/cli commitlint lefthook',
-		};
-		const installCommand = installCommands[packageManager];
-
-		if (
-			await yesno({
-				question: `Do you want to run "${installCommand}" now? [y]n`,
-				defaultValue: true,
-				yesValues: ['yes', 'y'],
-				noValues: ['no', 'n'],
-			})
-		) {
-			writeLn(`Executing ${installCommand}...`);
-			cliUtils.execShell(installCommand);
-		} else {
-			writeLn('You could run the following command to install needed dependencies:');
-			writeLn(installCommand);
-		}
-
-		if (
-			await yesno({
-				question: `Do you want to run "${lefthookInstall}" now? [y]n`,
-				defaultValue: true,
-				yesValues: ['yes', 'y'],
-				noValues: ['no', 'n'],
-			})
-		) {
-			writeLn(`Executing ${lefthookInstall}...`);
-			cliUtils.execShell(lefthookInstall);
-		}
-	}
-
-	if (option?.split(',').includes('cleanup')) {
-		initCleanup(packageJson);
-	} else {
-		writeLn('Skipping cleanup...');
-		cliUtils.writeFile('package.json', JSON.stringify(packageJson, null, 2));
-	}
-};
-
-/**
- * Returns the directory name of the caller, optionally returns a directory name specified levels up.
- */
-export const dirn = (levelsUp: string): string => {
-	const DEFAULT_LEVELS_UP = 0;
-	levelsUp ??= `${DEFAULT_LEVELS_UP}`;
-
-	const levels = parseInt(levelsUp) || DEFAULT_LEVELS_UP;
-
-	return process.cwd().split(path.sep).reverse()[levels];
-};
-
-export const run = (script: string, packageManager: string, workspaceMode?: string): string => {
-	if (!workspaceMode || workspaceMode === 'auto') {
-		workspaceMode = detectWorkspace() ? 'seq' : 'none';
-	}
-
-	if (!packageManager || packageManager === 'auto') {
-		packageManager = detectPackageManager();
-	}
-
-	const pnpmWorkspaceSeq = '-r --workspace-concurrency=1 --if-present --reporter-hide-prefix';
-	const pnpmWorkspacePar = '-r --if-present --parallel';
-	const yarnWorkspaceSeq = 'workspaces foreach -A';
-	const yarnWorkspacePar = 'workspaces foreach -A -p';
-
-	const commands = {
-		npm: {
-			none: `npm run ${script}`,
-			seq: `npm run ${script} --workspaces --if-present`,
-		},
-		yarn: {
-			none: `yarn run ${script}`,
-			seq: `yarn ${yarnWorkspaceSeq} run ${script}`,
-			par: `yarn ${yarnWorkspacePar} run ${script}`,
-		},
-		pnpm: {
-			none: `pnpm run ${script}`,
-			seq: `pnpm ${pnpmWorkspaceSeq} run ${script}`,
-			par: `pnpm ${pnpmWorkspacePar} run ${script}`,
-		},
-	};
-
-	if (!commands[packageManager as never]) {
-		throw new Error(`Unknown package manager: ${packageManager}`);
-	}
-
-	if (!commands[packageManager as never]?.[workspaceMode]) {
-		throw new Error(`Unknown workspace mode: ${workspaceMode}`);
-	}
-
-	return (commands[packageManager as never] as never)[workspaceMode];
-};
-
 const main = async () => {
 	// Ask the user for arguments if IS_DEV is true
 	if (IS_DEV) {
 		args = (await prompt('Enter arguments:')).split(' ');
 	}
 
-	switch (args[0]) {
+	const parsed = parseArgs(args);
+
+	switch (parsed.command) {
 		case 'init':
-			await init(args[1]);
+			await init(parsed.positional[0] || (parsed.options.cleanup ? 'cleanup' : ''));
 			break;
 		case 'dirn':
-			writeLn(dirn(args[1]));
+			writeLn(dirn(parsed.positional[0]));
 			break;
 		case 'run':
-			writeLn(run(args[1], args[2] as never, args[3]));
+			writeLn(
+				run(
+					parsed.positional[0],
+					(parsed.positional[1] || parsed.options.p || parsed.options.packageManager) as string,
+					(parsed.positional[2] || parsed.options.w || parsed.options.workspaceMode) as string,
+				),
+			);
 			break;
 		default:
-			console.error(`Unknown command: ${args[0]}`);
+			console.error(`Unknown command: ${parsed.command}`);
 			process.exit(1);
 	}
 };
