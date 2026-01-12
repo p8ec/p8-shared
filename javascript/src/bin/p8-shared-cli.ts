@@ -60,8 +60,8 @@ Commands:
 			Arguments:
 				script: The script to run.
 			Options:
-				-p {value}, --packageManager={value}: The package manager to use, where {value} is one of 'npm', 'pnpm', 'yarn', or 'auto'.
-				-w {value}, --workspaceMode={value}: The workspace mode to use, where {value} is one of 'none', 'seq', 'par', or 'auto'.
+				-p {value}, --packageManager={value}: The package manager to use, where {value} is one of 'npm', 'pnpm', 'yarn', or 'auto' (defaults to 'auto').
+				-w {value}, --workspaceMode={value}: The workspace mode to use, where {value} is one of 'none', 'seq', 'par', or 'auto' (defaults to 'auto').
 `);
 
 	if (IS_DEV) {
