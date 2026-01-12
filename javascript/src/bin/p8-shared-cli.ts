@@ -28,17 +28,22 @@ export const IS_DEV = process.env.NODE_ENV === 'development';
 
 let args = processArgs.args;
 const self = path.parse(processArgs.name).name;
-const writeLn = console.log;
+const writeLn = (...args: any[]) => {
+	console.log(...args);
+};
 export const cliUtils = {
+	writeLn: (...args: any[]) => {
+		writeLn(...args);
+	},
 	execShell: (command: string) =>
-		IS_DEV ? writeLn(`DEV: execShell ${command}`) : child_process.execSync(command).toString(),
+		IS_DEV ? cliUtils.writeLn(`DEV: execShell ${command}`) : child_process.execSync(command).toString(),
 	writeFile: (name: string, data: string) =>
 		IS_DEV
-			? writeLn(`DEV: writeFile name=${name} data=${data}`)
+			? console.log(`DEV: writeFile name=${name} data=${data}`)
 			: fs.writeFileSync(path.join(process.cwd(), name), data),
 	copyAsset: (name: string) =>
 		IS_DEV
-			? writeLn(`DEV: copyAsset name=${name}`)
+			? console.log(`DEV: copyAsset name=${name}`)
 			: fs.copyFileSync(path.join(__dirname, '..', '..', 'assets', name), path.join(process.cwd(), name)),
 };
 
@@ -62,6 +67,10 @@ Commands:
 			Options:
 				-p {value}, --packageManager={value}: The package manager to use, where {value} is one of 'npm', 'pnpm', 'yarn', or 'auto' (defaults to 'auto').
 				-w {value}, --workspaceMode={value}: The workspace mode to use, where {value} is one of 'none', 'seq', 'par', or 'auto' (defaults to 'auto').
+	pm
+		Returns the detected package manager.
+	ws
+		Returns true or false for detected workspace.
 `);
 
 	if (IS_DEV) {
@@ -70,10 +79,12 @@ Commands:
 	process.exit(1);
 }
 
-const main = async () => {
+export const main = async (customArgs?: string[]) => {
 	// Ask the user for arguments if IS_DEV is true
-	if (IS_DEV) {
+	if (IS_DEV && !customArgs) {
 		args = (await prompt('Enter arguments:')).split(' ');
+	} else if (customArgs) {
+		args = customArgs;
 	}
 
 	const parsed = parseArgs(args);
@@ -83,16 +94,22 @@ const main = async () => {
 			await init(parsed.positional[0] || (parsed.options.cleanup ? 'cleanup' : ''));
 			break;
 		case 'dirn':
-			writeLn(dirn(parsed.positional[0]));
+			cliUtils.writeLn(dirn(parsed.positional[0]));
 			break;
 		case 'run':
-			writeLn(
+			cliUtils.writeLn(
 				run(
 					parsed.positional[0],
 					(parsed.positional[1] || parsed.options.p || parsed.options.packageManager) as string,
 					(parsed.positional[2] || parsed.options.w || parsed.options.workspaceMode) as string,
 				),
 			);
+			break;
+		case 'pm':
+			cliUtils.writeLn(detectPackageManager());
+			break;
+		case 'ws':
+			cliUtils.writeLn(detectWorkspace());
 			break;
 		default:
 			console.error(`Unknown command: ${parsed.command}`);

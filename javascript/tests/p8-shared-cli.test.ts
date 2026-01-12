@@ -6,6 +6,7 @@
 import * as cli from '../src/bin/p8-shared-cli';
 import yesno from '../src/bin/utils/yesno';
 import * as fs from 'node:fs';
+
 jest.mock('node:fs', () => ({
 	...jest.requireActual('node:fs'),
 	existsSync: jest.fn(),
@@ -16,6 +17,20 @@ jest.mock('../src/bin/utils/yesno');
 const mockedYesNo = yesno as jest.MockedFunction<typeof yesno>;
 
 describe('p8-shared-cli', () => {
+	let writeLnSpy: jest.SpyInstance;
+
+	beforeAll(() => {
+		writeLnSpy = jest.spyOn(cli.cliUtils, 'writeLn').mockImplementation();
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
+	afterAll(() => {
+		jest.restoreAllMocks();
+	});
+
 	describe('detectPackageManager', () => {
 		afterEach(() => {
 			jest.restoreAllMocks();
@@ -128,6 +143,24 @@ describe('p8-shared-cli', () => {
 		it('should auto-detect workspace mode when "auto" is specified', () => {
 			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
 			expect(cli.run('test', 'pnpm', 'auto')).toContain('--workspace-concurrency=1');
+		});
+	});
+
+	describe('main', () => {
+		it('should return detected package manager', async () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-lock.yaml'));
+			const logSpy = jest.spyOn(console, 'log').mockImplementation();
+			await cli.main(['pm']);
+			expect(logSpy).toHaveBeenCalledWith('pnpm');
+			logSpy.mockRestore();
+		});
+
+		it('should return detected workspace', async () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => p.endsWith('pnpm-workspace.yaml'));
+			const logSpy = jest.spyOn(console, 'log').mockImplementation();
+			await cli.main(['ws']);
+			expect(logSpy).toHaveBeenCalledWith(true);
+			logSpy.mockRestore();
 		});
 	});
 

@@ -69,3 +69,5 @@ p8-cli [command] [options]
     - Example: `p8-cli run build` - returns the `build` script using the detected package manager.
     - Example: `p8-cli run test auto par` - returns the `test` script using the detected
       package manager in parallel mode for workspaces.
+- `pm` - Returns the detected package manager (`npm`, `yarn`, or `pnpm`).
+- `ws` - Returns `true` if the project is a workspace, `false` otherwise.
