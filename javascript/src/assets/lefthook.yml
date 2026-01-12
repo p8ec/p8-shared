@@ -7,10 +7,34 @@ pre-commit:
   commands:
     git:
       run: |
-          if [[ $(git rev-parse --abbrev-ref HEAD) =~ ^(main|master|release)$ ]]; then
-            echo "Direct commits to main, master, and release branches are not allowed."
-            exit 1
+        if [[ $(git rev-parse --abbrev-ref HEAD) =~ ^(main|master|release)$ ]]; then
+          # Allow direct commits on protected branches ONLY if the staged changes are package.json
+          STAGED_FILES=$(git diff --cached --name-only)
+        
+          if [[ -z "$STAGED_FILES" ]]; then
+            exit 0
           fi
+        
+          ALLOWED_FILES=${ALLOWED_FILES:-"package.json"}
+          IFS=',' read -r -a ALLOWED_ARRAY <<< "$ALLOWED_FILES"
+        
+          # Check every staged file; if any differs from the allowed files, block the commit
+          for f in $STAGED_FILES; do
+            MATCHED=false
+            for allowed in "${ALLOWED_ARRAY[@]}"; do
+              if [[ "$f" == "$allowed" || "$f" == */"$allowed" ]]; then
+                MATCHED=true
+                break
+              fi
+            done
+        
+            if [[ "$MATCHED" == "false" ]]; then
+              echo "Direct commits to main, master, and release branches are not allowed, except for: $ALLOWED_FILES"
+              exit 1
+            fi
+          done
+        fi
+
 
 ### Commit message hook ###
 # 1. Allow only commit messages that follow a conventional commit format
