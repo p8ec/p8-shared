@@ -20,9 +20,10 @@ import * as child_process from 'node:child_process';
 import { init, initCleanup } from './cmds/init';
 import { dirn } from './cmds/dirn';
 import { run } from './cmds/run';
+import { root } from './cmds/root';
 import { detectPackageManager, detectWorkspace } from './utils/detect';
 
-export { init, initCleanup, dirn, run, detectPackageManager, detectWorkspace };
+export { init, initCleanup, dirn, run, root, detectPackageManager, detectWorkspace };
 
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -67,6 +68,8 @@ Commands:
 			Options:
 				-p {value}, --packageManager={value}: The package manager to use, where {value} is one of 'npm', 'pnpm', 'yarn', or 'auto' (defaults to 'auto').
 				-w {value}, --workspaceMode={value}: The workspace mode to use, where {value} is one of 'none', 'seq', 'par', or 'auto' (defaults to 'auto').
+	root
+		Returns path to the root of the repo.
 	pm
 		Returns the detected package manager.
 	ws
@@ -104,6 +107,9 @@ export const main = async (customArgs?: string[]) => {
 					(parsed.positional[2] || parsed.options.w || parsed.options.workspaceMode) as string,
 				),
 			);
+			break;
+		case 'root':
+			cliUtils.writeLn(root());
 			break;
 		case 'pm':
 			cliUtils.writeLn(detectPackageManager());

@@ -96,6 +96,15 @@ describe('p8-shared-cli', () => {
 		});
 	});
 
+	describe('root', () => {
+		it('should return the root directory', () => {
+			(fs.existsSync as jest.Mock).mockImplementation((p: string) => {
+				return p === '/home/user/project/package.json';
+			});
+			expect(cli.root('/home/user/project/src')).toBe('/home/user/project');
+		});
+	});
+
 	describe('run', () => {
 		it('should return correct npm command for none workspace mode', () => {
 			expect(cli.run('test', 'npm', 'none')).toBe('npm run test');

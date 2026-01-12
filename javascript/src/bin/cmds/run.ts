@@ -5,7 +5,7 @@
 
 import { detectPackageManager, detectWorkspace } from '../utils/detect';
 
-export const run = (script: string, packageManager: string, workspaceMode?: string): string => {
+export const run = (script: string, packageManager?: string, workspaceMode?: string): string => {
 	if (!workspaceMode || workspaceMode === 'auto') {
 		workspaceMode = detectWorkspace() ? 'seq' : 'none';
 	}
