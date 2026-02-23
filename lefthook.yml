@@ -2,7 +2,7 @@
 #   https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
 
 ### Pre-commit hook ###
-# 1. Block commits to main, master, and release branches
+# 1. Block commits to main, master, and release branches, except for specific files
 pre-commit:
   commands:
     git:
@@ -15,14 +15,17 @@ pre-commit:
             exit 0
           fi
         
-          ALLOWED_FILES=${ALLOWED_FILES:-"package.json"}
+          # Enable extended globbing for pattern matching
+          shopt -s globstar extglob
+        
+          ALLOWED_FILES=${ALLOWED_FILES:-"package.json,.idea/*"}
           IFS=',' read -r -a ALLOWED_ARRAY <<< "$ALLOWED_FILES"
         
           # Check every staged file; if any differs from the allowed files, block the commit
-          for f in $STAGED_FILES; do
+          while IFS= read -r f; do
             MATCHED=false
             for allowed in "${ALLOWED_ARRAY[@]}"; do
-              if [[ "$f" == "$allowed" || "$f" == */"$allowed" ]]; then
+              if [[ "$f" == "$allowed" || "$f" == */"$allowed" || "$f" == $allowed ]]; then
                 MATCHED=true
                 break
               fi
@@ -32,9 +35,8 @@ pre-commit:
               echo "Direct commits to main, master, and release branches are not allowed, except for: $ALLOWED_FILES"
               exit 1
             fi
-          done
+          done <<< "$STAGED_FILES"
         fi
-
 
 ### Commit message hook ###
 # 1. Allow only commit messages that follow a conventional commit format

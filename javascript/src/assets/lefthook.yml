@@ -15,6 +15,9 @@ pre-commit:
             exit 0
           fi
         
+          # Enable extended globbing for pattern matching
+          shopt -s globstar extglob
+        
           ALLOWED_FILES=${ALLOWED_FILES:-"package.json,.idea/*"}
           IFS=',' read -r -a ALLOWED_ARRAY <<< "$ALLOWED_FILES"
         
