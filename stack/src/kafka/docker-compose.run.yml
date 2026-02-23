@@ -1,0 +1,21 @@
+services:
+
+  kafka-ui:
+    extends:
+      service: kafka-ui
+      file: docker-compose.yml
+
+  kafka-zookeeper:
+    extends:
+      service: kafka-zookeeper
+      file: docker-compose.yml
+
+  kafka-node0:
+    extends:
+      service: kafka-node0
+      file: docker-compose.yml
+
+  kafka-node1:
+    extends:
+      service: kafka-node1
+      file: docker-compose.yml
