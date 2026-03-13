@@ -17,17 +17,16 @@
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.4",
     "@swc/cli": "^0.8.0",
-    "@swc/core": "^1.15.11",
+    "@swc/core": "^1.15.18",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
-    "commitlint": "^20.4.2",
-    "jest": "^30.2.0",
-    "lefthook": "^2.1.1",
-    "lint-staged": "^16.2.7",
+    "commitlint": "^20.4.4",
+    "jest": "^30.3.0",
+    "lefthook": "^2.1.4",
+    "lint-staged": "^16.3.3",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.28.17",
     "typescript": "5.9.3"
   },
   "engines": {

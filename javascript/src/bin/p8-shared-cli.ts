@@ -19,21 +19,22 @@ import parseArgs from './utils/args';
 import * as child_process from 'node:child_process';
 import { init, initCleanup } from './cmds/init';
 import { dirn } from './cmds/dirn';
+import { env } from './cmds/env';
 import { run } from './cmds/run';
 import { root } from './cmds/root';
 import { detectPackageManager, detectWorkspace } from './utils/detect';
 
-export { init, initCleanup, dirn, run, root, detectPackageManager, detectWorkspace };
+export { init, initCleanup, dirn, env, run, root, detectPackageManager, detectWorkspace };
 
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
 let args = processArgs.args;
-const self = path.parse(processArgs.name).name;
-const writeLn = (...args: any[]) => {
+const self = processArgs.name ? path.parse(processArgs.name).name : 'p8cli';
+const writeLn = (...args: unknown[]) => {
 	console.log(...args);
 };
 export const cliUtils = {
-	writeLn: (...args: any[]) => {
+	writeLn: (...args: unknown[]) => {
 		writeLn(...args);
 	},
 	execShell: (command: string) =>
@@ -72,8 +73,15 @@ Commands:
 		Returns path to the root of the repo.
 	pm
 		Returns the detected package manager.
-	ws
+	ws [options]
 		Returns true or false for detected workspace.
+	env [filemask] [options]
+		Reads .env file(s) and populates environment variables.
+			Arguments:
+				filemask: The .env file name or mask (defaults to '.env').
+			Options:
+				-r, --root: Flag to search for .env file(s) in the project root.
+				-q, --quiet: Flag to suppress output.
 `);
 
 	if (IS_DEV) {
@@ -117,6 +125,12 @@ export const main = async (customArgs?: string[]) => {
 		case 'ws':
 			cliUtils.writeLn(detectWorkspace());
 			break;
+		case 'env':
+			return env(
+				(parsed.positional[0] || parsed.options.f || parsed.options.filemask) as string,
+				!!(parsed.options.r || parsed.options.root),
+				!!(parsed.options.q || parsed.options.quiet),
+			);
 		default:
 			console.error(`Unknown command: ${parsed.command}`);
 			process.exit(1);
@@ -127,12 +141,12 @@ if (require.main === module) {
 	main()
 		.then((r) => {
 			if (IS_DEV) {
-				writeLn(`DEV: setup completed successfully with result: ${JSON.stringify(r)}`);
+				writeLn(`DEV: completed successfully with result: ${JSON.stringify(r)}`);
 			}
 		})
 		.catch((err) => {
 			if (IS_DEV) {
-				writeLn(`DEV: setup failed with error: ${JSON.stringify(err)}`);
+				writeLn(`DEV: failed with error: ${JSON.stringify(err)}`);
 			}
 			console.error(err.toString());
 			process.exit(1);
